@@ -1,6 +1,6 @@
 # schoolconnect
 
-A new Flutter project.
+Ce projet consiste a mettre à la disposition des établissements scolaires secondaires camerounais une application mobile qui centralise et sécurise leur gestion administrative, pédagogique et financière et rapproche l’école des familles.
 
 ## Getting Started
 
