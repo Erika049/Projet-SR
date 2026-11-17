@@ -42,6 +42,27 @@ Pour ne pas révéler qui est inscrit, l'étape 1 passe toujours au code, même 
 numéro inconnu. C'est le code qui est alors refusé (« Code incorrect ou expiré »).
 Comme pour l'inscription, le changement est perdu à la fermeture de l'application.
 
+## Notifications
+
+- À la **première connexion** (ou après une inscription), Android demande directement
+  l'autorisation d'envoyer des notifications. Cette demande n'apparaît qu'une fois par téléphone.
+- Pour la revoir : désinstaller l'application, ou effacer ses données dans les paramètres d'Android.
+- Dans **Profil**, l'interrupteur **Notifications** suit l'autorisation du téléphone : si on bloque
+  les notifications dans les paramètres d'Android, il passe à « Non autorisées par le téléphone ».
+
+## Déclarer un paiement (parent)
+
+1. **Suivi → Paiements → Déclarer un paiement**.
+2. Choisir le mode (Mobile Money, Espèces, Virement), saisir le **montant**, la **date** et la **référence**.
+3. **Joindre la preuve** : Android demande l'accès aux fichiers, puis choisir une image ou un PDF (5 Mo max).
+4. **Envoyer la déclaration**. Un montant supérieur au solde, une date future ou une preuve
+   manquante sont refusés avec un message.
+
+## Faire l'appel (enseignant)
+
+**Appel** : chaque élève est marqué **P** (présent) ou **A** (absent) ; « Tous présents » remet
+toute la classe à présent. Il n'y a pas de retard pour les élèves.
+
 ## À savoir
 
 - Les données affichées après connexion (enfants, notes, paiements, classes…) sont les
