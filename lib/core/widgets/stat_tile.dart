@@ -4,7 +4,7 @@ import '../../app/theme/app_colors.dart';
 import 'pill_selector.dart';
 import 'status_chip.dart';
 
-/// Tuile chiffrée colorée (« 2 Absences », « 1 Retard », « Plus forte 17,5 »).
+/// Tuile chiffrée colorée (« 2 Absences », « Plus forte 17,5 »).
 class StatTile extends StatelessWidget {
   const StatTile({super.key, required this.value, required this.label, this.tone});
 

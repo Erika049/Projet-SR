@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 /// Types de notification (table `notification`).
 enum NotificationType {
-  absence('Absence ou retard'),
+  absence('Absence'),
   note('Nouvelle note'),
   bulletin('Bulletin disponible'),
   echeance('Échéance de paiement'),

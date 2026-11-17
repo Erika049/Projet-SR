@@ -73,7 +73,6 @@ class _SyncPageState extends State<SyncPage> {
   Widget build(BuildContext context) {
     final state = context.watch<SyncCubit>().state;
     return AppPage(
-      eyebrow: 'SCHOOLCONNECT · ENSEIGNANT',
       title: 'Synchronisation',
       body: DataStateBuilder(
         state: state,

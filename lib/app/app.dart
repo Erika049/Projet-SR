@@ -43,18 +43,8 @@ class _SchoolConnectAppState extends State<SchoolConnectApp> with WidgetsBinding
     super.dispose();
   }
 
-  /// Les couleurs [AppColors] ne passent pas par `Theme.of` : après un changement
-  /// de thème, on redessine tout l'arbre (l'état des écrans est conservé).
-  void _repaintAll() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      void rebuild(Element e) {
-        e.markNeedsBuild();
-        e.visitChildren(rebuild);
-      }
-
-      if (mounted) (context as Element).visitChildren(rebuild);
-    });
-  }
+  /// L'application est toujours en thème clair.
+  static final _theme = AppTheme.build(dark: false);
 
   @override
   Widget build(BuildContext context) {
@@ -63,19 +53,16 @@ class _SchoolConnectAppState extends State<SchoolConnectApp> with WidgetsBinding
         BlocProvider.value(value: _session),
         BlocProvider.value(value: _settings),
       ],
-      child: BlocConsumer<SettingsCubit, SettingsState>(
-        listenWhen: (a, b) => a.darkMode != b.darkMode,
-        listener: (_, _) => _repaintAll(),
-        buildWhen: (a, b) => a.locale != b.locale || a.darkMode != b.darkMode,
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        buildWhen: (a, b) => a.locale != b.locale,
         builder: (context, settings) {
-          final theme = AppTheme.build(dark: settings.darkMode);
           return AnnotatedRegion<SystemUiOverlayStyle>(
-            value: settings.darkMode ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+            value: SystemUiOverlayStyle.dark,
             child: MaterialApp.router(
               title: AppConstants.appName,
               debugShowCheckedModeBanner: false,
-              theme: theme,
-              themeAnimationDuration: Duration.zero,
+              theme: _theme,
+              themeMode: ThemeMode.light,
               routerConfig: _router,
               locale: settings.locale,
               supportedLocales: const [Locale('fr'), Locale('en')],

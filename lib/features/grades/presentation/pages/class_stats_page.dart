@@ -21,7 +21,6 @@ class ClassStatsPage extends StatelessWidget {
         builder: (context) {
           final state = context.watch<ClassStatsCubit>().state;
           return AppPage(
-            eyebrow: 'SCHOOLCONNECT · ENSEIGNANT',
             title: state.data == null ? 'Statistiques' : 'Statistiques · ${state.data!.className}',
             body: DataStateBuilder(
               state: state,

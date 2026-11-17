@@ -180,7 +180,7 @@ class _DeclareViewState extends State<_DeclareView> {
                 const HelpText('Photo du reçu, capture Mobile Money ou avis de virement · JPG, PNG ou PDF, 5 Mo max.'),
                 gap12,
                 AppButton(
-                  label: 'Envoyer la déclaration',
+                  label: 'Envoyer',
                   icon: Icons.send_rounded,
                   loading: submit.isSubmitting,
                   onPressed: () => _submit(s),

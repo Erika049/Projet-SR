@@ -9,7 +9,6 @@ class SettingsState extends Equatable {
   const SettingsState({
     this.locale = const Locale('fr'),
     this.lowDataMode = true,
-    this.darkMode = false,
     this.notificationsWanted = true,
     this.notificationsAllowed = false,
   });
@@ -18,9 +17,6 @@ class SettingsState extends Equatable {
 
   /// « Mode faible consommation » : moins d'images, rafraîchissements manuels.
   final bool lowDataMode;
-
-  /// Thème sombre (sinon thème clair).
-  final bool darkMode;
 
   /// Choix de l'utilisateur dans l'application (interrupteur du profil).
   final bool notificationsWanted;
@@ -34,29 +30,26 @@ class SettingsState extends Equatable {
   SettingsState copyWith({
     Locale? locale,
     bool? lowDataMode,
-    bool? darkMode,
     bool? notificationsWanted,
     bool? notificationsAllowed,
   }) => SettingsState(
     locale: locale ?? this.locale,
     lowDataMode: lowDataMode ?? this.lowDataMode,
-    darkMode: darkMode ?? this.darkMode,
     notificationsWanted: notificationsWanted ?? this.notificationsWanted,
     notificationsAllowed: notificationsAllowed ?? this.notificationsAllowed,
   );
 
   @override
-  List<Object?> get props => [locale, lowDataMode, darkMode, notificationsWanted, notificationsAllowed];
+  List<Object?> get props => [locale, lowDataMode, notificationsWanted, notificationsAllowed];
 }
 
-/// Préférences de l'appareil : langue, thème, notifications, mode faible consommation.
+/// Préférences de l'appareil : langue, notifications, mode faible consommation.
 class SettingsCubit extends Cubit<SettingsState> {
   SettingsCubit(this._storage, this._permissions)
     : super(
         SettingsState(
           locale: Locale(_storage.getString(LocalStorage.keyLocale) ?? 'fr'),
           lowDataMode: _storage.getBool(LocalStorage.keyLowData) ?? true,
-          darkMode: _storage.getBool(LocalStorage.keyDarkMode) ?? false,
           notificationsWanted: _storage.getBool(LocalStorage.keyNotifications) ?? true,
         ),
       );
@@ -77,11 +70,6 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> setLowDataMode(bool value) async {
     await _storage.setBool(LocalStorage.keyLowData, value);
     emit(state.copyWith(lowDataMode: value));
-  }
-
-  Future<void> setDarkMode(bool value) async {
-    await _storage.setBool(LocalStorage.keyDarkMode, value);
-    emit(state.copyWith(darkMode: value));
   }
 
   /// Relit l'autorisation du téléphone (au démarrage et au retour dans l'application,
@@ -107,9 +95,6 @@ class SettingsCubit extends Cubit<SettingsState> {
     await _storage.setBool(LocalStorage.keyNotifications, false);
     emit(state.copyWith(notificationsWanted: false));
   }
-
-  /// L'utilisateur a choisi « Plus tard » lors de la première demande.
-  Future<void> postponeNotifications() => _storage.setBool(LocalStorage.keyNotificationsPrompted, true);
 
   Future<bool> openPhoneSettings() => _permissions.openSettings();
 }

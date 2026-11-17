@@ -38,7 +38,6 @@ class _RollCallView extends StatelessWidget {
       listenWhen: (a, b) => b.message != null && a.message != b.message,
       listener: (context, s) => context.showMessage(s.message!),
       child: AppPage(
-        eyebrow: 'SCHOOLCONNECT · ENSEIGNANT',
         title: 'Faire l’appel',
         body: DataStateBuilder(
           state: state.rollCall,
@@ -70,8 +69,6 @@ class _RollCallView extends StatelessWidget {
                   StatusChip('${rc.count(RollCallStatus.present)} P'),
                   const SizedBox(width: 8),
                   StatusChip('${rc.count(RollCallStatus.absent)} A', tone: StatusTone.danger),
-                  const SizedBox(width: 8),
-                  StatusChip('${rc.count(RollCallStatus.retard)} R', tone: StatusTone.warning),
                   const Spacer(),
                   StatusChip('Tous présents', onTap: cubit.allPresent),
                 ],
@@ -116,7 +113,6 @@ class _StudentRow extends StatelessWidget {
         for (final (status, label, color) in [
           (RollCallStatus.present, 'P', AppColors.green),
           (RollCallStatus.absent, 'A', AppColors.red),
-          (RollCallStatus.retard, 'R', AppColors.amber),
         ]) ...[
           const SizedBox(width: 8),
           _StatusButton(

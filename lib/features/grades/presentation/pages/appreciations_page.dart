@@ -60,7 +60,6 @@ class _AppreciationsViewState extends State<_AppreciationsView> {
   Widget build(BuildContext context) {
     final state = context.watch<AppreciationsCubit>().state;
     return AppPage(
-      eyebrow: 'SCHOOLCONNECT · ENSEIGNANT',
       title: 'Appréciations',
       body: DataStateBuilder(
         state: state,

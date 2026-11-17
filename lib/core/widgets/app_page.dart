@@ -3,21 +3,13 @@ import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_theme.dart';
 
-/// Gabarit commun des écrans : bandeau blanc (« SCHOOLCONNECT » + titre)
+/// Gabarit commun des écrans : bandeau blanc (flèche de retour + titre de la page)
 /// puis contenu défilant sur fond gris-bleu.
 class AppPage extends StatelessWidget {
-  const AppPage({
-    super.key,
-    required this.title,
-    this.eyebrow = 'SCHOOLCONNECT',
-    this.children,
-    this.body,
-    this.onRefresh,
-    this.bottom,
-  }) : assert(children != null || body != null);
+  const AppPage({super.key, required this.title, this.children, this.body, this.onRefresh, this.bottom})
+    : assert(children != null || body != null);
 
   final String title;
-  final String eyebrow;
 
   /// Contenu affiché dans une liste défilante avec les marges standard.
   final List<Widget>? children;
@@ -49,10 +41,10 @@ class AppPage extends StatelessWidget {
             color: AppColors.surface,
             child: SafeArea(
               bottom: false,
+              // Barre du haut : flèche de retour (si possible) suivie du titre de la page.
               child: Padding(
-                padding: EdgeInsets.fromLTRB(canPop ? 4 : 20, 12, 20, 14),
+                padding: EdgeInsets.fromLTRB(canPop ? 4 : 20, canPop ? 4 : 12, 20, canPop ? 4 : 12),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     if (canPop)
                       IconButton(
@@ -61,21 +53,11 @@ class AppPage extends StatelessWidget {
                         onPressed: () => Navigator.of(context).maybePop(),
                       ),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            eyebrow,
-                            style: TextStyle(
-                              color: AppColors.green,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.1,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(title, style: Theme.of(context).textTheme.headlineMedium),
-                        ],
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.headlineMedium,
                       ),
                     ),
                   ],

@@ -18,21 +18,12 @@ class AttendanceMockDataSource implements AttendanceRemoteDataSource {
     'eleve-amina': [
       AttendanceRecord(
         id: 'abs-1',
-        kind: AttendanceKind.absence,
         start: DateTime(2026, 11, 9, 8),
         end: DateTime(2026, 11, 9, 9),
         subject: 'Mathématiques',
       ),
       AttendanceRecord(
-        id: 'ret-1',
-        kind: AttendanceKind.retard,
-        start: DateTime(2026, 11, 5, 8),
-        minutesLate: 15,
-        status: JustificationStatus.justifie,
-      ),
-      AttendanceRecord(
         id: 'abs-2',
-        kind: AttendanceKind.absence,
         start: DateTime(2026, 11, 2, 10, 15),
         end: DateTime(2026, 11, 2, 11, 15),
         subject: 'Anglais',

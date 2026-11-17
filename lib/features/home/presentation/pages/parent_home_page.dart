@@ -44,7 +44,6 @@ class _ParentHomeViewState extends State<_ParentHomeView> {
     }
 
     return AppPage(
-      eyebrow: 'SCHOOLCONNECT · PARENT',
       title: 'Bonjour, ${user?.greetingName ?? ''}',
       onRefresh: refresh,
       body: Builder(

@@ -117,23 +117,6 @@ class NotificationsRow extends StatelessWidget {
   }
 }
 
-/// « Thème sombre » : bascule thème clair / thème sombre.
-class DarkModeRow extends StatelessWidget {
-  const DarkModeRow({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final dark = context.watch<SettingsCubit>().state.darkMode;
-    return SettingSwitchRow(
-      icon: dark ? Icons.dark_mode_rounded : Icons.light_mode_outlined,
-      title: 'Thème sombre',
-      subtitle: dark ? 'Thème sombre utilisé' : 'Thème clair utilisé',
-      value: dark,
-      onChanged: context.read<SettingsCubit>().setDarkMode,
-    );
-  }
-}
-
 /// « Mode faible consommation  Activé ».
 class LowDataRow extends StatelessWidget {
   const LowDataRow({super.key});

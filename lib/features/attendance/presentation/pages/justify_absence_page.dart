@@ -94,12 +94,12 @@ class _JustifyViewState extends State<_JustifyView> {
           ],
           gap12,
           AppButton(
-            label: 'Envoyer pour validation',
+            label: 'Envoyer',
             loading: state.isSubmitting,
             onPressed: () =>
                 context.read<JustifyCubit>().submit((record: r, reason: _reason.text, attachmentPath: _file?.path)),
           ),
-          const HelpText('Le justificatif sera validé par la vie scolaire. Vous serez notifié.'),
+          const HelpText('Le justificatif sera validé par l\'etablissemant.'),
         ],
       ),
     );

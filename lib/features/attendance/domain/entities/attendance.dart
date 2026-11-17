@@ -1,8 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum AttendanceKind { absence, retard }
-
-/// État du justificatif d'une absence/retard (table `justificatif_absence`).
+/// État du justificatif d'une absence (table `justificatif_absence`).
 enum JustificationStatus {
   aJustifier('À justifier'),
   enAttente('En attente de validation'),
@@ -13,43 +11,31 @@ enum JustificationStatus {
   final String label;
 }
 
-/// Absence ou retard d'un enfant (CU-PAR-05).
+/// Absence d'un enfant (CU-PAR-05). Un élève est soit présent, soit absent :
+/// seules les absences sont enregistrées.
 class AttendanceRecord extends Equatable {
   const AttendanceRecord({
     required this.id,
-    required this.kind,
     required this.start,
     this.end,
     this.subject,
-    this.minutesLate,
     this.status = JustificationStatus.aJustifier,
   });
 
   final String id;
-  final AttendanceKind kind;
   final DateTime start;
   final DateTime? end;
   final String? subject;
-  final int? minutesLate;
   final JustificationStatus status;
 
-  /// « Absence · Mathématiques » / « Retard · 15 minutes »
-  String get title => kind == AttendanceKind.absence
-      ? 'Absence${subject == null ? '' : ' · $subject'}'
-      : 'Retard · ${minutesLate ?? 0} minutes';
+  /// « Absence · Mathématiques »
+  String get title => 'Absence${subject == null ? '' : ' · $subject'}';
 
-  AttendanceRecord withStatus(JustificationStatus s) => AttendanceRecord(
-    id: id,
-    kind: kind,
-    start: start,
-    end: end,
-    subject: subject,
-    minutesLate: minutesLate,
-    status: s,
-  );
+  AttendanceRecord withStatus(JustificationStatus s) =>
+      AttendanceRecord(id: id, start: start, end: end, subject: subject, status: s);
 
   @override
-  List<Object?> get props => [id, kind, start, end, subject, minutesLate, status];
+  List<Object?> get props => [id, start, end, subject, status];
 }
 
 class AttendanceSummary extends Equatable {
@@ -58,8 +44,7 @@ class AttendanceSummary extends Equatable {
   final DateTime month;
   final List<AttendanceRecord> records;
 
-  int get absences => records.where((r) => r.kind == AttendanceKind.absence).length;
-  int get lates => records.where((r) => r.kind == AttendanceKind.retard).length;
+  int get absences => records.length;
   int get toJustify => records.where((r) => r.status == JustificationStatus.aJustifier).length;
 
   @override
@@ -68,7 +53,8 @@ class AttendanceSummary extends Equatable {
 
 // ───────────────────────────── Enseignant ─────────────────────────────
 
-enum RollCallStatus { present, absent, retard }
+/// Appel : un élève est présent ou absent (pas de retard).
+enum RollCallStatus { present, absent }
 
 class RollCallEntry extends Equatable {
   const RollCallEntry({required this.studentId, required this.studentName, this.status = RollCallStatus.present});

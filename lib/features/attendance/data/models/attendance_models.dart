@@ -11,11 +11,9 @@ abstract final class AttendanceMapper {
 
   static AttendanceRecord record(Map<String, dynamic> j) => AttendanceRecord(
     id: j['id'] as String,
-    kind: j['statut'] == 'retard' ? AttendanceKind.retard : AttendanceKind.absence,
     start: DateTime.parse(j['debut'] as String),
     end: j['fin'] == null ? null : DateTime.parse(j['fin'] as String),
     subject: j['matiere'] as String?,
-    minutesLate: j['minutes_retard'] as int?,
     status: _justification[j['justification']] ?? JustificationStatus.aJustifier,
   );
 

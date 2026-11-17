@@ -61,7 +61,6 @@ class ParentProfilePage extends StatelessWidget {
                   ],
                 ),
               ),
-              const DarkModeRow(),
               const LanguageRow(),
               const LowDataRow(),
             ],

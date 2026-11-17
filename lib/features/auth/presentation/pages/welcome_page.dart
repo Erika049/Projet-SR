@@ -36,18 +36,18 @@ class WelcomePage extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 const Text(AppConstants.tagline, style: TextStyle(color: Colors.white, fontSize: 18)),
-                const SizedBox(height: 18),
+                const SizedBox(height: 15),
                 Container(
                   width: 56,
                   height: 5,
                   decoration: BoxDecoration(color: AuthLogo.accent, borderRadius: BorderRadius.circular(3)),
                 ),
-                const Spacer(flex: 2),
-                const Text(
-                  'PARENTS · ENSEIGNANTS · ADMINISTRATION',
-                  style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 0.6),
-                ),
-                const SizedBox(height: 10),
+                const Spacer(flex: 7),
+                // const Text(
+                //   'PARENTS · ENSEIGNANTS · ADMINISTRATION',
+                //   style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 0.6),
+                // ),
+               // const SizedBox(height: 60),
                 const Text('Pensé pour les écoles du Cameroun', style: TextStyle(color: Colors.white, fontSize: 16)),
                 const Spacer(flex: 2),
                 Padding(

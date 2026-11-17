@@ -25,30 +25,16 @@ class ChildAttendanceView extends StatelessWidget {
       builder: (context, summary) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: StatTile(
-                  value: '${summary.absences}',
-                  label: summary.absences > 1 ? 'Absences' : 'Absence',
-                  tone: StatusTone.danger,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: StatTile(
-                  value: '${summary.lates}',
-                  label: summary.lates > 1 ? 'Retards' : 'Retard',
-                  tone: StatusTone.warning,
-                ),
-              ),
-            ],
+          StatTile(
+            value: '${summary.absences}',
+            label: summary.absences > 1 ? 'Absences' : 'Absence',
+            tone: StatusTone.danger,
           ),
           gap12,
           if (summary.records.isEmpty)
             AppCard(
               child: Text(
-                'Aucune absence ni retard ce mois-ci.',
+                'Aucune absence ce mois-ci.',
                 style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
               ),
             )

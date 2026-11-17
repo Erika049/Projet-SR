@@ -31,7 +31,6 @@ class _TimetableViewState extends State<_TimetableView> {
   Widget build(BuildContext context) {
     final state = context.watch<TimetableCubit>().state;
     return AppPage(
-      eyebrow: 'SCHOOLCONNECT · ENSEIGNANT',
       title: 'Emploi du temps',
       children: [
         PillSelector(labels: _days, selected: _day, onChanged: (i) => setState(() => _day = i)),

@@ -4,7 +4,7 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_theme.dart';
 
 /// Gabarit commun des écrans d'authentification : bandeau marine arrondi
-/// (logo, titre, sous-titre) puis formulaire défilant.
+/// (flèche de retour, titre de la page, sous-titre) puis formulaire défilant.
 class AuthLayout extends StatelessWidget {
   const AuthLayout({super.key, required this.title, required this.children, this.subtitle, this.step, this.footer});
 
@@ -36,7 +36,7 @@ class AuthLayout extends StatelessWidget {
                 children: [
                   _Header(title: title, subtitle: subtitle, step: step, canPop: canPop),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
+                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
                   ),
                 ],
@@ -67,15 +67,16 @@ class _Header extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.header,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(canPop ? 8 : 24, 12, 24, 30),
+          padding: EdgeInsets.fromLTRB(canPop ? 4 : 24, canPop ? 4 : 16, 24, 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Barre du haut : flèche de retour suivie du titre de la page.
               Row(
                 children: [
                   if (canPop)
@@ -84,42 +85,33 @@ class _Header extends StatelessWidget {
                       icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
                       onPressed: () => Navigator.of(context).maybePop(),
                     ),
-                  const AuthLogo(size: 44),
-                  const SizedBox(width: 10),
-                  const Text(
-                    'SCHOOLCONNECT',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.2,
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w800),
                     ),
                   ),
                 ],
               ),
-              Padding(
-                padding: EdgeInsets.only(left: canPop ? 16 : 0, top: 26),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800),
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        subtitle!,
-                        style: TextStyle(color: Colors.white.withValues(alpha: 0.82), fontSize: 15, height: 1.35),
-                      ),
+              if (subtitle != null || step != null)
+                Padding(
+                  // Aligné sur le titre, après la flèche (48 px).
+                  padding: EdgeInsets.only(left: canPop ? 48 : 0, top: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (subtitle != null)
+                        Text(
+                          subtitle!,
+                          style: TextStyle(color: Colors.white.withValues(alpha: 0.82), fontSize: 15, height: 1.35),
+                        ),
+                      if (step != null) ...[
+                        const SizedBox(height: 12),
+                        _StepIndicator(current: step!.current, total: step!.total),
+                      ],
                     ],
-                    if (step != null) ...[
-                      const SizedBox(height: 18),
-                      _StepIndicator(current: step!.current, total: step!.total),
-                    ],
-                  ],
+                  ),
                 ),
-              ),
             ],
           ),
         ),

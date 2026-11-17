@@ -19,7 +19,6 @@ class TeacherProfilePage extends StatelessWidget {
     final pending = context.watch<SyncCubit>().state.data?.pendingCount ?? 0;
 
     return AppPage(
-      eyebrow: 'SCHOOLCONNECT · ENSEIGNANT',
       title: 'Profil et paramètres',
       children: [
         if (user != null)
@@ -43,7 +42,6 @@ class TeacherProfilePage extends StatelessWidget {
                 onTap: () => context.push(Routes.teacherSync),
               ),
               const NotificationsRow(),
-              const DarkModeRow(),
               const LowDataRow(),
               const LanguageRow(),
             ],

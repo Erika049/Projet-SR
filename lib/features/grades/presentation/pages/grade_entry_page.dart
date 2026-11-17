@@ -39,7 +39,6 @@ class _GradeEntryView extends StatelessWidget {
       listenWhen: (a, b) => b.message != null && a.message != b.message,
       listener: (context, s) => context.showMessage(s.message!),
       child: AppPage(
-        eyebrow: 'SCHOOLCONNECT · ENSEIGNANT',
         title: 'Saisie des notes',
         body: DataStateBuilder(
           state: state.sheet,

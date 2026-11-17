@@ -13,7 +13,6 @@ class LocalStorage {
   static const keyEstablishment = 'auth.establishment';
   static const keyLocale = 'settings.locale';
   static const keyLowData = 'settings.lowData';
-  static const keyDarkMode = 'settings.darkMode';
   static const keyNotifications = 'settings.notifications';
 
   /// `true` une fois la demande d'autorisation des notifications présentée sur ce téléphone.

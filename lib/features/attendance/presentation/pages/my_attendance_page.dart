@@ -46,7 +46,6 @@ class _MyAttendanceView extends StatelessWidget {
     final state = context.watch<MyAttendanceCubit>().state;
     final cubit = context.read<MyAttendanceCubit>();
     return AppPage(
-      eyebrow: 'SCHOOLCONNECT · ENSEIGNANT',
       title: 'Ma présence',
       body: DataStateBuilder(
         state: state,

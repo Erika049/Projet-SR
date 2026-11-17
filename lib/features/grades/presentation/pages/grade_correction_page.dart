@@ -61,7 +61,6 @@ class _CorrectionViewState extends State<_CorrectionView> {
         }
       },
       child: AppPage(
-        eyebrow: 'SCHOOLCONNECT · ENSEIGNANT',
         title: 'Corriger une note',
         children: [
           AppCard(

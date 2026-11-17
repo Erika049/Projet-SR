@@ -33,7 +33,6 @@ class _TeacherHomeView extends StatelessWidget {
     final cubit = context.read<TeacherHomeCubit>();
 
     return AppPage(
-      eyebrow: 'SCHOOLCONNECT · ENSEIGNANT',
       title: 'Bonjour, ${user?.greetingName ?? ''}',
       onRefresh: cubit.load,
       body: DataStateBuilder(
