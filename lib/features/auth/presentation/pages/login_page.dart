@@ -12,7 +12,6 @@ import '../state/auth_form_cubits.dart';
 import '../state/session_cubit.dart';
 import '../widgets/auth_layout.dart';
 
-/// « Connexion » : numéro de téléphone + mot de passe uniquement.
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
