@@ -1,0 +1,210 @@
+import 'package:flutter/material.dart';
+
+import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_theme.dart';
+
+/// Gabarit commun des écrans d'authentification : bandeau marine arrondi
+/// (logo, titre, sous-titre) puis formulaire défilant.
+class AuthLayout extends StatelessWidget {
+  const AuthLayout({super.key, required this.title, required this.children, this.subtitle, this.step, this.footer});
+
+  final String title;
+  final String? subtitle;
+
+  /// Étape courante d'un parcours en deux temps (inscription → vérification).
+  final ({int current, int total})? step;
+
+  final List<Widget> children;
+
+  /// Lien affiché en bas de l'écran (« Vous n'avez pas de compte ? … »).
+  final Widget? footer;
+
+  @override
+  Widget build(BuildContext context) {
+    final canPop = Navigator.of(context).canPop();
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _Header(title: title, subtitle: subtitle, step: step, canPop: canPop),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 16),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (footer != null)
+            SafeArea(
+              top: false,
+              child: Padding(padding: const EdgeInsets.fromLTRB(24, 4, 24, 12), child: footer),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  const _Header({required this.title, required this.canPop, this.subtitle, this.step});
+
+  final String title;
+  final String? subtitle;
+  final ({int current, int total})? step;
+  final bool canPop;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.navy,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(canPop ? 8 : 24, 12, 24, 30),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  if (canPop)
+                    IconButton(
+                      tooltip: 'Retour',
+                      icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                      onPressed: () => Navigator.of(context).maybePop(),
+                    ),
+                  const AuthLogo(size: 40),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'SCHOOLCONNECT',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: canPop ? 16 : 0, top: 26),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w800),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        subtitle!,
+                        style: TextStyle(color: Colors.white.withValues(alpha: 0.82), fontSize: 15, height: 1.35),
+                      ),
+                    ],
+                    if (step != null) ...[
+                      const SizedBox(height: 18),
+                      _StepIndicator(current: step!.current, total: step!.total),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StepIndicator extends StatelessWidget {
+  const _StepIndicator({required this.current, required this.total});
+
+  final int current;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        for (var i = 1; i <= total; i++) ...[
+          if (i > 1) const SizedBox(width: 6),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            width: i == current ? 36 : 18,
+            height: 6,
+            decoration: BoxDecoration(
+              color: i <= current ? AuthLogo.accent : Colors.white.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
+        ],
+        const SizedBox(width: 12),
+        Text(
+          'Étape $current sur $total',
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.82), fontSize: 13, fontWeight: FontWeight.w700),
+        ),
+      ],
+    );
+  }
+}
+
+/// Logo SchoolConnect : carré blanc arrondi et pictogramme marine.
+class AuthLogo extends StatelessWidget {
+  const AuthLogo({super.key, this.size = 112});
+
+  /// Vert d'accent de la page d'accueil.
+  static const accent = Color(0xFF4FD1A5);
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(size * 0.27)),
+      child: Icon(Icons.view_column_rounded, size: size * 0.46, color: AppColors.navy),
+    );
+  }
+}
+
+/// Texte suivi d'un lien : « Vous n'avez pas de compte ? S'inscrire ».
+class AuthLink extends StatelessWidget {
+  const AuthLink({super.key, required this.text, required this.action, required this.onTap});
+
+  final String text;
+  final String action;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text(text, style: const TextStyle(fontSize: 15, color: AppColors.textSecondary)),
+        TextButton(
+          onPressed: onTap,
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.navy,
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            minimumSize: const Size(0, AppTheme.minTouchTarget),
+          ),
+          child: Text(action, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
+        ),
+      ],
+    );
+  }
+}

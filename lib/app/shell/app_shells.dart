@@ -1,0 +1,83 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../features/children/presentation/state/children_cubit.dart';
+import '../../features/sync/presentation/state/sync_cubit.dart';
+import '../di/injection.dart';
+import '../theme/app_colors.dart';
+
+typedef _Tab = ({IconData icon, IconData selected, String label});
+
+/// Barre de navigation inférieure commune.
+class _ShellScaffold extends StatelessWidget {
+  const _ShellScaffold({required this.shell, required this.tabs});
+
+  final StatefulNavigationShell shell;
+  final List<_Tab> tabs;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: shell,
+      bottomNavigationBar: DecoratedBox(
+        decoration: const BoxDecoration(border: Border(top: BorderSide(color: AppColors.divider))),
+        child: NavigationBar(
+          selectedIndex: shell.currentIndex,
+          // Un second appui sur l'onglet courant revient à sa racine.
+          onDestinationSelected: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
+          destinations: [
+            for (final t in tabs)
+              NavigationDestination(icon: Icon(t.icon), selectedIcon: Icon(t.selected), label: t.label),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Espace Parent : Accueil · Suivi · Alertes · Profil.
+/// Fournit [ChildrenCubit] à tous les écrans de l'espace.
+class ParentShell extends StatelessWidget {
+  const ParentShell({super.key, required this.shell});
+  final StatefulNavigationShell shell;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<ChildrenCubit>()..load(),
+      child: _ShellScaffold(
+        shell: shell,
+        tabs: const [
+          (icon: Icons.home_outlined, selected: Icons.home_rounded, label: 'Accueil'),
+          (icon: Icons.bar_chart_rounded, selected: Icons.bar_chart_rounded, label: 'Suivi'),
+          (icon: Icons.notifications_none_rounded, selected: Icons.notifications_rounded, label: 'Alertes'),
+          (icon: Icons.person_outline_rounded, selected: Icons.person_rounded, label: 'Profil'),
+        ],
+      ),
+    );
+  }
+}
+
+/// Espace Enseignant : Accueil · Notes · Appel · Profil.
+/// Fournit [SyncCubit] à tous les écrans de l'espace.
+class TeacherShell extends StatelessWidget {
+  const TeacherShell({super.key, required this.shell});
+  final StatefulNavigationShell shell;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<SyncCubit>()..load(),
+      child: _ShellScaffold(
+        shell: shell,
+        tabs: const [
+          (icon: Icons.home_outlined, selected: Icons.home_rounded, label: 'Accueil'),
+          (icon: Icons.view_column_outlined, selected: Icons.view_column_rounded, label: 'Notes'),
+          (icon: Icons.check_rounded, selected: Icons.check_rounded, label: 'Appel'),
+          (icon: Icons.person_outline_rounded, selected: Icons.person_rounded, label: 'Profil'),
+        ],
+      ),
+    );
+  }
+}
