@@ -35,12 +35,9 @@ class AppPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final canPop = Navigator.of(context).canPop();
 
-    Widget content = body ??
-        ListView(
-          padding: AppTheme.pagePadding,
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: children!,
-        );
+    Widget content =
+        body ??
+        ListView(padding: AppTheme.pagePadding, physics: const AlwaysScrollableScrollPhysics(), children: children!);
     if (onRefresh != null) {
       content = RefreshIndicator(onRefresh: onRefresh!, child: content);
     }
@@ -60,7 +57,7 @@ class AppPage extends StatelessWidget {
                     if (canPop)
                       IconButton(
                         tooltip: 'Retour',
-                        icon: const Icon(Icons.arrow_back_rounded, color: AppColors.navy),
+                        icon: Icon(Icons.arrow_back_rounded, color: AppColors.navy),
                         onPressed: () => Navigator.of(context).maybePop(),
                       ),
                     Expanded(
@@ -69,7 +66,7 @@ class AppPage extends StatelessWidget {
                         children: [
                           Text(
                             eyebrow,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.green,
                               fontSize: 12,
                               fontWeight: FontWeight.w800,

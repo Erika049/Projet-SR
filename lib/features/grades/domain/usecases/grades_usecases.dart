@@ -82,12 +82,7 @@ class SaveGradeSheet implements UseCase<GradeSheet, ({GradeSheet sheet, bool sub
   }
 }
 
-typedef CorrectGradeParams = ({
-  GradeSheet sheet,
-  String studentId,
-  String input,
-  String reason,
-});
+typedef CorrectGradeParams = ({GradeSheet sheet, String studentId, String input, String reason});
 
 /// Correction tracée d'une note, uniquement pendant la période ouverte (CU-ENS-05).
 class CorrectGrade implements UseCase<void, CorrectGradeParams> {

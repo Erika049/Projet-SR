@@ -28,22 +28,22 @@ class PendingOperation {
   final Map<String, dynamic> payload;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'kind': kind,
-        'label': label,
-        'draft': draft,
-        'createdAt': createdAt.toIso8601String(),
-        'payload': payload,
-      };
+    'id': id,
+    'kind': kind,
+    'label': label,
+    'draft': draft,
+    'createdAt': createdAt.toIso8601String(),
+    'payload': payload,
+  };
 
   factory PendingOperation.fromJson(Map<String, dynamic> j) => PendingOperation(
-        id: j['id'] as String,
-        kind: j['kind'] as String,
-        label: j['label'] as String,
-        draft: j['draft'] as bool,
-        createdAt: DateTime.parse(j['createdAt'] as String),
-        payload: (j['payload'] as Map).cast<String, dynamic>(),
-      );
+    id: j['id'] as String,
+    kind: j['kind'] as String,
+    label: j['label'] as String,
+    draft: j['draft'] as bool,
+    createdAt: DateTime.parse(j['createdAt'] as String),
+    payload: (j['payload'] as Map).cast<String, dynamic>(),
+  );
 }
 
 /// File d'attente persistante des opérations hors connexion.

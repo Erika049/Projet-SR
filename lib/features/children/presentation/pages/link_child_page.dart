@@ -74,10 +74,7 @@ class _LinkChildPageState extends State<LinkChildPage> {
         if (state.children.isNotEmpty) ...[
           gap12,
           const SectionTitle('Enfants rattachés'),
-          for (final c in state.children) ...[
-            _LinkedChildCard(child: c),
-            gap12,
-          ],
+          for (final c in state.children) ...[_LinkedChildCard(child: c), gap12],
         ],
       ],
     );
@@ -133,8 +130,10 @@ Future<void> confirmUnlink(BuildContext context, Child child) async {
     context: context,
     builder: (context) => AlertDialog(
       title: const Text('Se dissocier ?'),
-      content: Text('Vous ne verrez plus les informations de ${child.fullName}. '
-          'Une nouvelle liaison devra être validée par l’école.'),
+      content: Text(
+        'Vous ne verrez plus les informations de ${child.fullName}. '
+        'Une nouvelle liaison devra être validée par l’école.',
+      ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Annuler')),
         FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Se dissocier')),

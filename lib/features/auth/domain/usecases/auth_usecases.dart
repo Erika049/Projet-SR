@@ -1,3 +1,4 @@
+import '../../../../core/errors/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../../../../core/utils/result.dart';
 import '../entities/app_user.dart';
@@ -50,6 +51,36 @@ class RequestPasswordReset implements UseCase<void, String> {
 
   @override
   Future<Result<void>> call(String identifier) => _repo.requestPasswordReset(identifier.trim());
+}
+
+class VerifyResetCode implements UseCase<String, ({String phone, String code})> {
+  const VerifyResetCode(this._repo);
+  final AuthRepository _repo;
+
+  @override
+  Future<Result<String>> call(({String phone, String code}) p) =>
+      _repo.verifyResetCode(phone: p.phone.trim(), code: p.code.trim());
+}
+
+typedef ResetPasswordParams = ({String resetToken, String password, String confirmation});
+
+/// Choix du nouveau mot de passe : au moins 6 caractères, saisi deux fois à l'identique.
+class ResetPassword implements UseCase<void, ResetPasswordParams> {
+  const ResetPassword(this._repo);
+  final AuthRepository _repo;
+
+  static const minLength = 6;
+
+  @override
+  Future<Result<void>> call(ResetPasswordParams p) async {
+    if (p.password.length < minLength) {
+      return const Err(ValidationFailure('Le mot de passe doit contenir au moins $minLength caractères.'));
+    }
+    if (p.password != p.confirmation) {
+      return const Err(ValidationFailure('Les deux mots de passe ne correspondent pas.'));
+    }
+    return _repo.resetPassword(resetToken: p.resetToken, newPassword: p.password);
+  }
 }
 
 class RestoreSession implements UseCase<AppUser?, NoParams> {

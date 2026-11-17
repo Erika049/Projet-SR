@@ -5,29 +5,49 @@ import 'package:go_router/go_router.dart';
 import '../../features/children/presentation/state/children_cubit.dart';
 import '../../features/sync/presentation/state/sync_cubit.dart';
 import '../di/injection.dart';
+import '../settings/permission_prompts.dart';
 import '../theme/app_colors.dart';
 
 typedef _Tab = ({IconData icon, IconData selected, String label});
 
 /// Barre de navigation inférieure commune.
-class _ShellScaffold extends StatelessWidget {
+///
+/// À la première arrivée dans un espace (première connexion ou fin d'inscription),
+/// demande l'autorisation d'envoyer des notifications push.
+class _ShellScaffold extends StatefulWidget {
   const _ShellScaffold({required this.shell, required this.tabs});
 
   final StatefulNavigationShell shell;
   final List<_Tab> tabs;
 
   @override
+  State<_ShellScaffold> createState() => _ShellScaffoldState();
+}
+
+class _ShellScaffoldState extends State<_ShellScaffold> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) promptNotificationsFirstTime(context);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final shell = widget.shell;
     return Scaffold(
       body: shell,
       bottomNavigationBar: DecoratedBox(
-        decoration: const BoxDecoration(border: Border(top: BorderSide(color: AppColors.divider))),
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: AppColors.divider)),
+        ),
         child: NavigationBar(
           selectedIndex: shell.currentIndex,
           // Un second appui sur l'onglet courant revient à sa racine.
           onDestinationSelected: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
           destinations: [
-            for (final t in tabs)
+            for (final t in widget.tabs)
               NavigationDestination(icon: Icon(t.icon), selectedIcon: Icon(t.selected), label: t.label),
           ],
         ),

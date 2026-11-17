@@ -43,18 +43,12 @@ class ChildProfilePage extends StatelessWidget {
           child: Row(
             children: [
               const Expanded(child: Text('Vos droits', style: TextStyle(fontSize: 17))),
-              Wrap(
-                spacing: 8,
-                children: [for (final r in child.rights.labels) StatusChip(r)],
-              ),
+              Wrap(spacing: 8, children: [for (final r in child.rights.labels) StatusChip(r)]),
             ],
           ),
         ),
         gap12,
-        AppButton.secondary(
-          label: 'Demander une correction',
-          onPressed: () => showCorrectionDialog(context, child),
-        ),
+        AppButton.secondary(label: 'Demander une correction', onPressed: () => showCorrectionDialog(context, child)),
       ],
     );
   }

@@ -14,41 +14,43 @@ class SyncRepositoryImpl implements SyncRepository {
   final SyncQueue _queue;
   final NetworkInfo _network;
 
-  final List<SyncItem> _sent = [const SyncItem(id: 'sent-1', label: 'Appel · 4e B · 06 nov.', status: SyncStatus.envoye)];
+  final List<SyncItem> _sent = [
+    const SyncItem(id: 'sent-1', label: 'Appel · 4e B · 06 nov.', status: SyncStatus.envoye),
+  ];
   final List<SyncItem> _conflicts = [
     const SyncItem(id: 'conflict-1', label: 'Note d’Amina Etame modifiée', status: SyncStatus.conflit),
   ];
   DateTime? _lastSync = DateTime.now().subtract(const Duration(hours: 2));
 
   SyncOverview _overview() => SyncOverview(
-        lastSync: _lastSync,
-        items: [
-          for (final op in _queue.all)
-            SyncItem(id: op.id, label: op.label, status: op.draft ? SyncStatus.brouillon : SyncStatus.enAttente),
-          ..._sent,
-          ..._conflicts,
-        ],
-      );
+    lastSync: _lastSync,
+    items: [
+      for (final op in _queue.all)
+        SyncItem(id: op.id, label: op.label, status: op.draft ? SyncStatus.brouillon : SyncStatus.enAttente),
+      ..._sent,
+      ..._conflicts,
+    ],
+  );
 
   @override
   Future<Result<SyncOverview>> getOverview() async => Ok(_overview());
 
   @override
   Future<Result<SyncOverview>> syncNow() => guard(() async {
-        if (!await _network.isConnected) throw const NetworkException();
-        await mockDelay(800);
-        for (final op in _queue.all.where((op) => !op.draft)) {
-          _sent.insert(0, SyncItem(id: op.id, label: op.label, status: SyncStatus.envoye));
-          await _queue.remove(op.id);
-        }
-        _lastSync = DateTime.now();
-        return _overview();
-      });
+    if (!await _network.isConnected) throw const NetworkException();
+    await mockDelay(800);
+    for (final op in _queue.all.where((op) => !op.draft)) {
+      _sent.insert(0, SyncItem(id: op.id, label: op.label, status: SyncStatus.envoye));
+      await _queue.remove(op.id);
+    }
+    _lastSync = DateTime.now();
+    return _overview();
+  });
 
   @override
   Future<Result<SyncOverview>> resolveConflict(String id, {required bool keepLocal}) => guard(() async {
-        await mockDelay();
-        _conflicts.removeWhere((c) => c.id == id);
-        return _overview();
-      });
+    await mockDelay();
+    _conflicts.removeWhere((c) => c.id == id);
+    return _overview();
+  });
 }

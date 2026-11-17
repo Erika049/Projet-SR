@@ -7,16 +7,13 @@ import '../../../../app/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../widgets/auth_layout.dart';
 
-/// Page de bienvenue (1re maquette mobile) : premier écran affiché au lancement.
-/// Le bouton « Démarrer » mène à la connexion. Si une session est déjà ouverte,
-/// le routeur envoie directement vers l'accueil.
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.navy,
+      backgroundColor: AppColors.header,
       body: SafeArea(
         child: TweenAnimationBuilder<double>(
           tween: Tween(begin: 0, end: 1),
@@ -31,7 +28,7 @@ class WelcomePage extends StatelessWidget {
             child: Column(
               children: [
                 const Spacer(flex: 3),
-                const AuthLogo(),
+                const AuthLogo(size: 148),
                 const SizedBox(height: 22),
                 const Text(
                   AppConstants.appName,
@@ -47,7 +44,7 @@ class WelcomePage extends StatelessWidget {
                 ),
                 const Spacer(flex: 2),
                 const Text(
-                  'PARENTS · ENSEIGNANTS',
+                  'PARENTS · ENSEIGNANTS · ADMINISTRATION',
                   style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w800, letterSpacing: 0.6),
                 ),
                 const SizedBox(height: 10),
@@ -68,11 +65,7 @@ class WelcomePage extends StatelessWidget {
                       ),
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('Démarrer'),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward_rounded, size: 22),
-                        ],
+                        children: [Text('Démarrer'), SizedBox(width: 8), Icon(Icons.arrow_forward_rounded, size: 22)],
                       ),
                     ),
                   ),

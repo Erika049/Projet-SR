@@ -44,15 +44,19 @@ class _TimetableViewState extends State<_TimetableView> {
               ..sort((a, b) => a.start.compareTo(b.start));
             final date = week.isEmpty
                 ? null
-                : DateTime(week.first.start.year, week.first.start.month, week.first.start.day)
-                    .subtract(Duration(days: week.first.start.weekday - 1))
-                    .add(Duration(days: _day));
+                : DateTime(
+                    week.first.start.year,
+                    week.first.start.month,
+                    week.first.start.day,
+                  ).subtract(Duration(days: week.first.start.weekday - 1)).add(Duration(days: _day));
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (date != null)
-                  Text(Formatters.longDate(date, withYear: false),
-                      style: const TextStyle(fontSize: 16, color: AppColors.textSecondary)),
+                  Text(
+                    Formatters.longDate(date, withYear: false),
+                    style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
+                  ),
                 gap12,
                 for (final c in courses) ...[
                   AppCard(
@@ -62,14 +66,18 @@ class _TimetableViewState extends State<_TimetableView> {
                       children: [
                         Text(
                           Formatters.slot(c.start, c.end),
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textSecondary),
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textSecondary),
                         ),
                         const SizedBox(height: 6),
-                        Text('${c.className} · ${c.subject}',
-                            style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800)),
+                        Text(
+                          '${c.className} · ${c.subject}',
+                          style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+                        ),
                         const SizedBox(height: 6),
-                        Text('${c.studentCount} élèves · ${c.room}',
-                            style: const TextStyle(fontSize: 15, color: AppColors.textSecondary)),
+                        Text(
+                          '${c.studentCount} élèves · ${c.room}',
+                          style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
+                        ),
                       ],
                     ),
                   ),

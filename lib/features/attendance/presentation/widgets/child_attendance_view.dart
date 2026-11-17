@@ -46,7 +46,7 @@ class ChildAttendanceView extends StatelessWidget {
           ),
           gap12,
           if (summary.records.isEmpty)
-            const AppCard(
+            AppCard(
               child: Text(
                 'Aucune absence ni retard ce mois-ci.',
                 style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
@@ -55,9 +55,7 @@ class ChildAttendanceView extends StatelessWidget {
           else
             AppCard(
               child: DividedColumn(
-                children: [
-                  for (final r in summary.records) _RecordTile(record: r, canJustify: canJustify),
-                ],
+                children: [for (final r in summary.records) _RecordTile(record: r, canJustify: canJustify)],
               ),
             ),
           gap12,
@@ -112,7 +110,7 @@ class _RecordTile extends StatelessWidget {
       children: [
         Text(
           when,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textSecondary),
         ),
         const SizedBox(height: 8),
         Text(record.title, style: const TextStyle(fontSize: 18)),

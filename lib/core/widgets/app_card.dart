@@ -12,26 +12,30 @@ class AppCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(20),
     this.onTap,
     this.accent = false,
-    this.color = AppColors.surface,
+    this.color,
   });
 
   final Widget child;
   final EdgeInsets padding;
   final VoidCallback? onTap;
   final bool accent;
-  final Color color;
+
+  /// Fond de la carte (par défaut : surface du thème actif).
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: color,
+      color: color ?? AppColors.surface,
       borderRadius: cardRadius,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Container(
           decoration: accent
-              ? const BoxDecoration(border: Border(left: BorderSide(color: AppColors.green, width: 5)))
+              ? BoxDecoration(
+                  border: Border(left: BorderSide(color: AppColors.green, width: 5)),
+                )
               : null,
           padding: padding,
           child: child,
@@ -51,7 +55,10 @@ class HighlightCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       color: AppColors.navy,
-      child: DefaultTextStyle.merge(style: const TextStyle(color: Colors.white), child: child),
+      child: DefaultTextStyle.merge(
+        style: const TextStyle(color: Colors.white),
+        child: child,
+      ),
     );
   }
 }
@@ -69,7 +76,11 @@ class DividedColumn extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (var i = 0; i < children.length; i++) ...[
-          if (i > 0) Padding(padding: EdgeInsets.symmetric(vertical: spacing), child: const Divider()),
+          if (i > 0)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: spacing),
+              child: const Divider(),
+            ),
           children[i],
         ],
       ],

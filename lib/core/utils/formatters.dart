@@ -8,12 +8,10 @@ abstract final class Formatters {
   static String fcfa(num value) => '${number(value)} FCFA';
 
   /// 45000 → « 45 000 »
-  static String number(num value) =>
-      _amount.format(value).replaceAll(' ', ' ').replaceAll(' ', ' ');
+  static String number(num value) => _amount.format(value).replaceAll(' ', ' ').replaceAll(' ', ' ');
 
   /// 14.6 → « 14,6 »
-  static String grade(num value, {int decimals = 1}) =>
-      value.toStringAsFixed(decimals).replaceAll('.', ',');
+  static String grade(num value, {int decimals = 1}) => value.toStringAsFixed(decimals).replaceAll('.', ',');
 
   /// Lundi 9 novembre 2026
   static String longDate(DateTime d, {bool withYear = true}) =>
@@ -29,8 +27,7 @@ abstract final class Formatters {
   static String time(DateTime d) => DateFormat('HH:mm').format(d);
 
   /// 8 → « 08 H », 8:15 → « 08 H 15 »
-  static String hour(DateTime d) =>
-      d.minute == 0 ? '${_two(d.hour)} H' : '${_two(d.hour)} H ${_two(d.minute)}';
+  static String hour(DateTime d) => d.minute == 0 ? '${_two(d.hour)} H' : '${_two(d.hour)} H ${_two(d.minute)}';
 
   /// « 08 H – 09 H »
   static String slot(DateTime start, DateTime end) => '${hour(start)} – ${hour(end)}';

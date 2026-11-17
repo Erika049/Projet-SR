@@ -52,9 +52,13 @@ class ClassStatsPage extends StatelessWidget {
                   gap12,
                   Row(
                     children: [
-                      Expanded(child: StatTile(label: 'Plus forte', value: Formatters.grade(s.highest))),
+                      Expanded(
+                        child: StatTile(label: 'Plus forte', value: Formatters.grade(s.highest)),
+                      ),
                       const SizedBox(width: 12),
-                      Expanded(child: StatTile(label: 'Plus faible', value: Formatters.grade(s.lowest))),
+                      Expanded(
+                        child: StatTile(label: 'Plus faible', value: Formatters.grade(s.lowest)),
+                      ),
                     ],
                   ),
                   gap12,
@@ -67,7 +71,7 @@ class ClassStatsPage extends StatelessWidget {
                             const Expanded(child: Text('Élèves à 10 ou plus', style: TextStyle(fontSize: 17))),
                             Text(
                               '${(s.passRate * 100).round()} %',
-                              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.green),
+                              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.green),
                             ),
                           ],
                         ),

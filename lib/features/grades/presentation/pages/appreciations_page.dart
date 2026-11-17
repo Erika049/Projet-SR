@@ -16,9 +16,9 @@ class AppreciationsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocProvider(
-        create: (_) => sl<AppreciationsCubit>()..load(classId),
-        child: _AppreciationsView(classId: classId),
-      );
+    create: (_) => sl<AppreciationsCubit>()..load(classId),
+    child: _AppreciationsView(classId: classId),
+  );
 }
 
 class _AppreciationsView extends StatefulWidget {
@@ -68,10 +68,7 @@ class _AppreciationsViewState extends State<_AppreciationsView> {
         builder: (context, items) => ListView(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
           children: [
-            const Text(
-              'Mathématiques · Séquence 1',
-              style: const TextStyle(fontSize: 15, color: AppColors.textSecondary),
-            ),
+            Text('Mathématiques · Séquence 1', style: TextStyle(fontSize: 15, color: AppColors.textSecondary)),
             gap12,
             for (final a in items) ...[
               AppCard(

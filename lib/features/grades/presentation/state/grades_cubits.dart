@@ -28,13 +28,12 @@ class ChildGradesState extends Equatable {
     PeriodKind? kind,
     String? periodId,
     DataState<GradesReport>? report,
-  }) =>
-      ChildGradesState(
-        periods: periods ?? this.periods,
-        kind: kind ?? this.kind,
-        periodId: periodId ?? this.periodId,
-        report: report ?? this.report,
-      );
+  }) => ChildGradesState(
+    periods: periods ?? this.periods,
+    kind: kind ?? this.kind,
+    periodId: periodId ?? this.periodId,
+    report: report ?? this.report,
+  );
 
   @override
   List<Object?> get props => [periods, kind, periodId, report];
@@ -51,14 +50,11 @@ class ChildGradesCubit extends Cubit<ChildGradesState> {
     _childId = childId;
     emit(state.copyWith(report: state.report.loading()));
     final result = await _getPeriods(childId);
-    await result.fold(
-      (f) async => emit(state.copyWith(report: state.report.error(f))),
-      (periods) async {
-        final first = periods.where((p) => p.kind == state.kind).firstOrNull ?? periods.firstOrNull;
-        emit(state.copyWith(periods: periods, periodId: state.period?.id ?? first?.id));
-        await _loadReport();
-      },
-    );
+    await result.fold((f) async => emit(state.copyWith(report: state.report.error(f))), (periods) async {
+      final first = periods.where((p) => p.kind == state.kind).firstOrNull ?? periods.firstOrNull;
+      emit(state.copyWith(periods: periods, periodId: state.period?.id ?? first?.id));
+      await _loadReport();
+    });
   }
 
   Future<void> selectKind(PeriodKind kind) async {
@@ -121,8 +117,7 @@ class GradeSheetState extends Equatable {
 
   int get errorCount => inputs.keys.where((id) => errorFor(id) != null).length;
 
-  int get validCount =>
-      inputs.entries.where((e) => e.value.trim().isNotEmpty && errorFor(e.key) == null).length;
+  int get validCount => inputs.entries.where((e) => e.value.trim().isNotEmpty && errorFor(e.key) == null).length;
 
   int get remaining => (sheet.data?.grades.length ?? 0) - validCount - errorCount;
 
@@ -133,13 +128,12 @@ class GradeSheetState extends Equatable {
     Map<String, String>? inputs,
     bool? saving,
     String? message,
-  }) =>
-      GradeSheetState(
-        sheet: sheet ?? this.sheet,
-        inputs: inputs ?? this.inputs,
-        saving: saving ?? this.saving,
-        message: message,
-      );
+  }) => GradeSheetState(
+    sheet: sheet ?? this.sheet,
+    inputs: inputs ?? this.inputs,
+    saving: saving ?? this.saving,
+    message: message,
+  );
 
   @override
   List<Object?> get props => [sheet, inputs, saving, message];
@@ -156,18 +150,21 @@ class GradeSheetCubit extends Cubit<GradeSheetState> {
     final result = await _get(classId);
     result.fold(
       (f) => emit(state.copyWith(sheet: state.sheet.error(f))),
-      (sheet) => emit(state.copyWith(
-        sheet: state.sheet.success(sheet),
-        inputs: {
-          for (final g in sheet.grades)
-            g.studentId: g.absent ? 'Abs.' : (g.value == null ? '' : g.value!.toStringAsFixed(1).replaceAll('.', ',')),
-        },
-      )),
+      (sheet) => emit(
+        state.copyWith(
+          sheet: state.sheet.success(sheet),
+          inputs: {
+            for (final g in sheet.grades)
+              g.studentId: g.absent
+                  ? 'Abs.'
+                  : (g.value == null ? '' : g.value!.toStringAsFixed(1).replaceAll('.', ',')),
+          },
+        ),
+      ),
     );
   }
 
-  void setInput(String studentId, String value) =>
-      emit(state.copyWith(inputs: {...state.inputs, studentId: value}));
+  void setInput(String studentId, String value) => emit(state.copyWith(inputs: {...state.inputs, studentId: value}));
 
   Future<void> save({required bool submit}) async {
     final sheet = state.sheet.data;
@@ -189,13 +186,15 @@ class GradeSheetCubit extends Cubit<GradeSheetState> {
     final result = await _save((sheet: sheet.copyWith(grades: grades), submit: submit));
     result.fold(
       (f) => emit(state.copyWith(saving: false, message: f.message)),
-      (saved) => emit(state.copyWith(
-        saving: false,
-        sheet: state.sheet.success(saved),
-        message: saved.status == GradeSheetStatus.soumis
-            ? 'Notes soumises pour validation.'
-            : 'Brouillon enregistré.',
-      )),
+      (saved) => emit(
+        state.copyWith(
+          saving: false,
+          sheet: state.sheet.success(saved),
+          message: saved.status == GradeSheetStatus.soumis
+              ? 'Notes soumises pour validation.'
+              : 'Brouillon enregistré.',
+        ),
+      ),
     );
   }
 }
@@ -207,10 +206,12 @@ class CorrectionCubit extends Cubit<SubmitState> {
   Future<void> submit(CorrectGradeParams params) async {
     emit(const SubmitState(status: ViewStatus.loading));
     final result = await _correct(params);
-    emit(result.fold(
-      (f) => SubmitState(status: ViewStatus.failure, error: f.message),
-      (_) => const SubmitState(status: ViewStatus.success),
-    ));
+    emit(
+      result.fold(
+        (f) => SubmitState(status: ViewStatus.failure, error: f.message),
+        (_) => const SubmitState(status: ViewStatus.success),
+      ),
+    );
   }
 }
 

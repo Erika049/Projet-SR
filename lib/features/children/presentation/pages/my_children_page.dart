@@ -21,10 +21,7 @@ class MyChildrenPage extends StatelessWidget {
       builder: (context) => SafeArea(
         child: ListView(
           shrinkWrap: true,
-          children: [
-            for (final c in children)
-              ListTile(title: Text(c.label), onTap: () => Navigator.pop(context, c)),
-          ],
+          children: [for (final c in children) ListTile(title: Text(c.label), onTap: () => Navigator.pop(context, c))],
         ),
       ),
     );

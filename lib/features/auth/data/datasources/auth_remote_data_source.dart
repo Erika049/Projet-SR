@@ -7,6 +7,12 @@ abstract interface class AuthRemoteDataSource {
   Future<AuthSession> verifyOtp(String phone, String code);
   Future<void> resendOtp(String phone);
   Future<void> requestPasswordReset(String identifier);
+
+  /// Vérifie le code SMS de réinitialisation et renvoie un jeton à usage unique.
+  Future<String> verifyResetCode(String phone, String code);
+
+  /// Enregistre le nouveau mot de passe avec le jeton obtenu par [verifyResetCode].
+  Future<void> resetPassword(String resetToken, String newPassword);
   Future<List<EstablishmentModel>> getEstablishments();
 }
 
@@ -38,6 +44,16 @@ class AuthApiDataSource implements AuthRemoteDataSource {
   @override
   Future<void> requestPasswordReset(String identifier) =>
       _api.post('/auth/password/forgot', data: {'identifiant': identifier});
+
+  @override
+  Future<String> verifyResetCode(String phone, String code) async {
+    final json = await _api.post('/auth/password/verify', data: {'telephone': phone, 'code': code});
+    return json['reset_token'] as String;
+  }
+
+  @override
+  Future<void> resetPassword(String resetToken, String newPassword) =>
+      _api.post('/auth/password/reset', data: {'reset_token': resetToken, 'mot_de_passe': newPassword});
 
   @override
   Future<List<EstablishmentModel>> getEstablishments() async {

@@ -53,14 +53,18 @@ class _PaymentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = payment;
-    final title = p.hasReceipt ? 'Reçu du ${Formatters.shortDate(p.date)}' : 'Déclaration du ${Formatters.shortDate(p.date)}';
+    final title = p.hasReceipt
+        ? 'Reçu du ${Formatters.shortDate(p.date)}'
+        : 'Déclaration du ${Formatters.shortDate(p.date)}';
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              Expanded(child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800))),
+              Expanded(
+                child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+              ),
               StatusChip(
                 p.status.label,
                 tone: switch (p.status) {

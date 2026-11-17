@@ -41,7 +41,7 @@ class NotificationsMockDataSource implements NotificationsRemoteDataSource {
         title: 'Absence signalée',
         message: 'Amina · Mathématiques, 8 h – 9 h. Vous pouvez justifier l’absence.',
         date: at(8, 15),
-        channels: const [NotificationChannel.push, NotificationChannel.sms],
+        channels: const [NotificationChannel.push],
         read: _read,
       ),
       AppNotification(
@@ -50,7 +50,7 @@ class NotificationsMockDataSource implements NotificationsRemoteDataSource {
         title: 'Échéance de scolarité',
         message: '45 000 FCFA à régler avant le 30 novembre 2026.',
         date: at(7, 30),
-        channels: const [NotificationChannel.push, NotificationChannel.sms],
+        channels: const [NotificationChannel.push],
         read: _read,
       ),
     ];
@@ -65,20 +65,7 @@ class NotificationsMockDataSource implements NotificationsRemoteDataSource {
   @override
   Future<NotificationPreferences> getPreferences(String childId) async {
     await mockDelay(300);
-    const push = NotificationChannel.push;
-    const sms = NotificationChannel.sms;
-    return _prefs[childId] ??
-        NotificationPreferences(
-          childId: childId,
-          channels: const {push, sms},
-          byType: const {
-            NotificationType.absence: {push, sms},
-            NotificationType.note: {push},
-            NotificationType.bulletin: {push},
-            NotificationType.echeance: {push, sms},
-            NotificationType.annonce: {push},
-          },
-        );
+    return _prefs[childId] ?? NotificationPreferences.defaults(childId);
   }
 
   @override
@@ -126,19 +113,22 @@ class NotificationsLocalDataSource {
   static const _keyDate = 'cache.notifications.date';
 
   Future<void> save(List<AppNotification> items) async {
-    await _storage.setString(_key, jsonEncode([
-      for (final n in items)
-        {
-          'id': n.id,
-          'type': n.type.name,
-          'title': n.title,
-          'message': n.message,
-          'date': n.date.toIso8601String(),
-          'channels': [for (final c in n.channels) c.name],
-          'childId': n.childId,
-          'read': n.read,
-        },
-    ]));
+    await _storage.setString(
+      _key,
+      jsonEncode([
+        for (final n in items)
+          {
+            'id': n.id,
+            'type': n.type.name,
+            'title': n.title,
+            'message': n.message,
+            'date': n.date.toIso8601String(),
+            'channels': [for (final c in n.channels) c.name],
+            'childId': n.childId,
+            'read': n.read,
+          },
+      ]),
+    );
     await _storage.setString(_keyDate, DateTime.now().toIso8601String());
   }
 

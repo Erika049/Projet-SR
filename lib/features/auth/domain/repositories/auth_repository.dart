@@ -19,7 +19,14 @@ abstract interface class AuthRepository {
 
   Future<Result<void>> resendOtp(String phone);
 
+  /// Mot de passe oublié, étape 1 : demande l'envoi d'un code par SMS.
   Future<Result<void>> requestPasswordReset(String identifier);
+
+  /// Étape 2 : vérifie le code et renvoie un jeton de réinitialisation.
+  Future<Result<String>> verifyResetCode({required String phone, required String code});
+
+  /// Étape 3 : enregistre le nouveau mot de passe.
+  Future<Result<void>> resetPassword({required String resetToken, required String newPassword});
 
   /// Relit la session enregistrée sur le téléphone (null si aucune).
   Future<Result<AppUser?>> restoreSession();

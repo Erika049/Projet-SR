@@ -6,9 +6,9 @@ sealed class Result<T> {
   const Result();
 
   R fold<R>(R Function(Failure failure) onError, R Function(T value) onOk) => switch (this) {
-        Ok<T>(:final value) => onOk(value),
-        Err<T>(:final failure) => onError(failure),
-      };
+    Ok<T>(:final value) => onOk(value),
+    Err<T>(:final failure) => onError(failure),
+  };
 }
 
 final class Ok<T> extends Result<T> {

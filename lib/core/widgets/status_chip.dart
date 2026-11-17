@@ -17,18 +17,18 @@ enum StatusTone {
   neutral;
 
   Color get foreground => switch (this) {
-        success => AppColors.green,
-        warning => AppColors.amber,
-        danger => AppColors.red,
-        neutral => AppColors.textPrimary,
-      };
+    success => AppColors.green,
+    warning => AppColors.amber,
+    danger => AppColors.red,
+    neutral => AppColors.textPrimary,
+  };
 
   Color get background => switch (this) {
-        success => AppColors.greenSoft,
-        warning => AppColors.amberSoft,
-        danger => AppColors.redSoft,
-        neutral => AppColors.greySoft,
-      };
+    success => AppColors.greenSoft,
+    warning => AppColors.amberSoft,
+    danger => AppColors.redSoft,
+    neutral => AppColors.greySoft,
+  };
 }
 
 /// Petite étiquette colorée (« Justifié », « En attente », « À justifier »).

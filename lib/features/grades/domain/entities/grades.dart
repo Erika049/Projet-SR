@@ -133,22 +133,33 @@ class GradeSheet extends Equatable {
   bool get editable => status == GradeSheetStatus.brouillon;
 
   GradeSheet copyWith({List<StudentGrade>? grades, GradeSheetStatus? status}) => GradeSheet(
-        evaluationId: evaluationId,
-        classId: classId,
-        className: className,
-        subject: subject,
-        period: period,
-        evaluationLabel: evaluationLabel,
-        coefficient: coefficient,
-        scale: scale,
-        status: status ?? this.status,
-        openUntil: openUntil,
-        grades: grades ?? this.grades,
-      );
+    evaluationId: evaluationId,
+    classId: classId,
+    className: className,
+    subject: subject,
+    period: period,
+    evaluationLabel: evaluationLabel,
+    coefficient: coefficient,
+    scale: scale,
+    status: status ?? this.status,
+    openUntil: openUntil,
+    grades: grades ?? this.grades,
+  );
 
   @override
-  List<Object?> get props =>
-      [evaluationId, classId, className, subject, period, evaluationLabel, coefficient, scale, status, grades, openUntil];
+  List<Object?> get props => [
+    evaluationId,
+    classId,
+    className,
+    subject,
+    period,
+    evaluationLabel,
+    coefficient,
+    scale,
+    status,
+    grades,
+    openUntil,
+  ];
 }
 
 /// Appréciation d'un élève (CU-ENS-06).

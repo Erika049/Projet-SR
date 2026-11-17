@@ -32,7 +32,7 @@ class ParentProfilePage extends StatelessWidget {
         AppCard(
           child: DividedColumn(
             children: [
-              const LanguageRow(),
+              const NotificationsRow(),
               InkWell(
                 onTap: () => context.push(Routes.parentPreferences),
                 child: Column(
@@ -48,17 +48,21 @@ class ParentProfilePage extends StatelessWidget {
                     const Wrap(
                       spacing: 8,
                       children: [
-                        StatusChip('Push'),
-                        StatusChip('SMS'),
+                        StatusChip('Push · par défaut'),
+                        StatusChip('SMS', tone: StatusTone.neutral),
                         StatusChip('Email', tone: StatusTone.neutral),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    const Text('Réglable pour chaque enfant.',
-                        style: TextStyle(fontSize: 15, color: AppColors.textSecondary)),
+                    Text(
+                      'Réglable pour chaque enfant.',
+                      style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
+                    ),
                   ],
                 ),
               ),
+              const DarkModeRow(),
+              const LanguageRow(),
               const LowDataRow(),
             ],
           ),

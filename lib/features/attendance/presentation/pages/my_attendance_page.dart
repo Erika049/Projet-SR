@@ -58,8 +58,10 @@ class _MyAttendanceView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(Formatters.longDate(me.today, withYear: false),
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                  Text(
+                    Formatters.longDate(me.today, withYear: false),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+                  ),
                   if (me.firstCourse != null) ...[
                     const SizedBox(height: 6),
                     Text(
@@ -101,7 +103,10 @@ class _MyAttendanceView extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(DateFormat('dd MMM', 'fr_FR').format(d.date), style: const TextStyle(fontSize: 17)),
+                          child: Text(
+                            DateFormat('dd MMM', 'fr_FR').format(d.date),
+                            style: const TextStyle(fontSize: 17),
+                          ),
                         ),
                         StatusChip(
                           d.status == StaffStatus.retard ? 'Retard · ${d.minutesLate} min' : d.status.label,

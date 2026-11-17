@@ -33,8 +33,14 @@ jusqu'à la fermeture de l'application (il n'est pas enregistré durablement).
 
 ## Mot de passe oublié
 
-Saisir le numéro d'un des comptes ci-dessus : un message confirme l'envoi du code.
-Un numéro inconnu affiche une erreur.
+1. Sur l'écran de connexion : **Mot de passe oublié ?**, saisir le numéro, puis **Envoyer le code**.
+2. Code reçu par SMS : **`123456`** (validé automatiquement au 6e chiffre).
+3. Choisir le nouveau mot de passe (6 caractères minimum, saisi deux fois), puis **Enregistrer**.
+4. Retour à la connexion : seul le nouveau mot de passe fonctionne désormais.
+
+Pour ne pas révéler qui est inscrit, l'étape 1 passe toujours au code, même avec un
+numéro inconnu. C'est le code qui est alors refusé (« Code incorrect ou expiré »).
+Comme pour l'inscription, le changement est perdu à la fermeture de l'application.
 
 ## À savoir
 

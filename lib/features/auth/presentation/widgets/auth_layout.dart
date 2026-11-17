@@ -65,8 +65,8 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.navy,
+      decoration: BoxDecoration(
+        color: AppColors.header,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
       ),
       child: SafeArea(
@@ -84,7 +84,7 @@ class _Header extends StatelessWidget {
                       icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
                       onPressed: () => Navigator.of(context).maybePop(),
                     ),
-                  const AuthLogo(size: 40),
+                  const AuthLogo(size: 44),
                   const SizedBox(width: 10),
                   const Text(
                     'SCHOOLCONNECT',
@@ -160,9 +160,12 @@ class _StepIndicator extends StatelessWidget {
   }
 }
 
-/// Logo SchoolConnect : carré blanc arrondi et pictogramme marine.
+/// Logo SchoolConnect (assets/images/logo.png) posé sur un carré blanc arrondi,
+/// pour rester lisible sur le fond marine, en thème clair comme en sombre.
 class AuthLogo extends StatelessWidget {
   const AuthLogo({super.key, this.size = 112});
+
+  static const asset = 'assets/images/logo.png';
 
   /// Vert d'accent de la page d'accueil.
   static const accent = Color(0xFF4FD1A5);
@@ -174,8 +177,14 @@ class AuthLogo extends StatelessWidget {
     return Container(
       width: size,
       height: size,
+      padding: EdgeInsets.all(size * 0.1),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(size * 0.27)),
-      child: Icon(Icons.view_column_rounded, size: size * 0.46, color: AppColors.navy),
+      child: Image.asset(
+        asset,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.medium,
+        semanticLabel: 'Logo SchoolConnect',
+      ),
     );
   }
 }
@@ -194,7 +203,7 @@ class AuthLink extends StatelessWidget {
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text(text, style: const TextStyle(fontSize: 15, color: AppColors.textSecondary)),
+        Text(text, style: TextStyle(fontSize: 15, color: AppColors.textSecondary)),
         TextButton(
           onPressed: onTap,
           style: TextButton.styleFrom(

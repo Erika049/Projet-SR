@@ -45,13 +45,10 @@ class _TeacherHomeView extends StatelessWidget {
           children: [
             Text(
               '${user?.specialite ?? ''} · ${Formatters.longDate(DateTime.now(), withYear: false)}',
-              style: const TextStyle(fontSize: 16, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
             ),
             gap12,
-            if (o.current != null) ...[
-              _CurrentCourseCard(course: o.current!),
-              gap20,
-            ],
+            if (o.current != null) ...[_CurrentCourseCard(course: o.current!), gap20],
             SectionTitle(
               'Mes classes',
               trailing: 'Emploi du temps ›',
@@ -59,9 +56,7 @@ class _TeacherHomeView extends StatelessWidget {
             ),
             AppCard(
               child: DividedColumn(
-                children: [
-                  for (final c in o.classes) _ClassRow(teacherClass: c, ongoing: o.current?.classId == c.id),
-                ],
+                children: [for (final c in o.classes) _ClassRow(teacherClass: c, ongoing: o.current?.classId == c.id)],
               ),
             ),
             gap12,
@@ -106,8 +101,10 @@ class _CurrentCourseCard extends StatelessWidget {
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 6),
-          Text('${course.className} · ${course.subject}',
-              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white)),
+          Text(
+            '${course.className} · ${course.subject}',
+            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white),
+          ),
           Text('${course.studentCount} élèves · ${course.room}', style: const TextStyle(fontSize: 16)),
           gap12,
           AppButton(
@@ -182,8 +179,10 @@ class _ClassRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(c.name, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800)),
-                Text('${c.studentCount} élèves · $_next',
-                    style: const TextStyle(fontSize: 15, color: AppColors.textSecondary)),
+                Text(
+                  '${c.studentCount} élèves · $_next',
+                  style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
+                ),
               ],
             ),
           ),

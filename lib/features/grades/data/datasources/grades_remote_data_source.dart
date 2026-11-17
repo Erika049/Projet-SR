@@ -30,8 +30,7 @@ class GradesMockDataSource implements GradesRemoteDataSource {
     '2ndeC': ['Kevin Ateba', 'Laure Bella', 'Marc Essomba', 'Nadia Fouda'],
   };
 
-  static String className(String classId) =>
-      {'3eA': '3e A', '4eB': '4e B', '2ndeC': '2nde C'}[classId] ?? classId;
+  static String className(String classId) => {'3eA': '3e A', '4eB': '4e B', '2ndeC': '2nde C'}[classId] ?? classId;
 
   final Map<String, GradeSheet> _sheets = {};
   final Map<String, List<Appreciation>> _appreciations = {};
@@ -67,7 +66,12 @@ class GradesMockDataSource implements GradesRemoteDataSource {
     await mockDelay();
     final amina = childId == 'eleve-amina';
     return [
-      ReportCard(id: '$childId-seq1', periodLabel: 'Séquence 1', published: amina, fileUrl: amina ? 'https://example.cm/b1.pdf' : null),
+      ReportCard(
+        id: '$childId-seq1',
+        periodLabel: 'Séquence 1',
+        published: amina,
+        fileUrl: amina ? 'https://example.cm/b1.pdf' : null,
+      ),
       ReportCard(id: '$childId-seq2', periodLabel: 'Séquence 2', published: false),
       ReportCard(id: '$childId-tri1', periodLabel: 'Trimestre 1', published: false),
     ];
@@ -113,12 +117,12 @@ class GradesMockDataSource implements GradesRemoteDataSource {
     final classId = studentId.split('-').first;
     final sheet = _sheets[classId];
     if (sheet == null) throw const ServerException('Évaluation introuvable.');
-    _sheets[classId] = sheet.copyWith(grades: [
-      for (final g in sheet.grades)
-        g.studentId == studentId
-            ? StudentGrade(studentId: g.studentId, studentName: g.studentName, value: value)
-            : g,
-    ]);
+    _sheets[classId] = sheet.copyWith(
+      grades: [
+        for (final g in sheet.grades)
+          g.studentId == studentId ? StudentGrade(studentId: g.studentId, studentName: g.studentName, value: value) : g,
+      ],
+    );
   }
 
   @override
@@ -130,7 +134,11 @@ class GradesMockDataSource implements GradesRemoteDataSource {
             Appreciation(
               studentId: '$classId-$i',
               studentName: name,
-              text: switch (i) { 0 => 'Très bon travail, continuez.', 1 => 'Peut mieux faire.', _ => '' },
+              text: switch (i) {
+                0 => 'Très bon travail, continuez.',
+                1 => 'Peut mieux faire.',
+                _ => '',
+              },
             ),
         ];
   }

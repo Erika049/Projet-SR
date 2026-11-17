@@ -117,6 +117,12 @@ class AuthMockDataSource implements AuthRemoteDataSource {
   ({String fullName, String phone, String? email, String password})? _pending;
   DemoAccount? _current;
 
+  /// Mots de passe modifiés par « Mot de passe oublié » (téléphone → mot de passe).
+  final Map<String, String> _changedPasswords = {};
+
+  /// Jetons de réinitialisation en cours (jeton → téléphone), à usage unique.
+  final Map<String, String> _resetTokens = {};
+
   /// Garde les 9 derniers chiffres : « +237 690 00 00 01 » → « 690000001 ».
   static String _normalize(String phone) {
     final digits = phone.replaceAll(RegExp(r'\D'), '');
@@ -135,7 +141,7 @@ class AuthMockDataSource implements AuthRemoteDataSource {
   Future<AuthSession> login(String identifier, String password) async {
     await mockDelay();
     final account = _find(identifier);
-    if (account == null || account.password != password) {
+    if (account == null || (_changedPasswords[account.phone] ?? account.password) != password) {
       throw const AuthException('Numéro ou mot de passe incorrect.');
     }
     _current = account;
@@ -178,8 +184,26 @@ class AuthMockDataSource implements AuthRemoteDataSource {
 
   @override
   Future<void> requestPasswordReset(String identifier) async {
+    // Même réponse que le compte existe ou non : on ne révèle pas qui est inscrit.
     await mockDelay();
-    if (_find(identifier) == null) throw const AuthException('Aucun compte n’est associé à ce numéro.');
+  }
+
+  @override
+  Future<String> verifyResetCode(String phone, String code) async {
+    await mockDelay();
+    final account = _find(phone);
+    if (account == null || code != DemoAccounts.otp) throw const AuthException('Code incorrect ou expiré.');
+    final token = 'reset-${account.phone}-${DateTime.now().microsecondsSinceEpoch}';
+    _resetTokens[token] = account.phone;
+    return token;
+  }
+
+  @override
+  Future<void> resetPassword(String resetToken, String newPassword) async {
+    await mockDelay();
+    final phone = _resetTokens.remove(resetToken);
+    if (phone == null) throw const AuthException('La demande a expiré. Recommencez depuis « Mot de passe oublié ».');
+    _changedPasswords[phone] = newPassword;
   }
 
   @override

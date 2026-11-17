@@ -50,31 +50,33 @@ class _AnnouncementCard extends StatelessWidget {
       onTap: item.content == null
           ? null
           : () => showModalBottomSheet<void>(
-                context: context,
-                showDragHandle: true,
-                builder: (context) => SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(item.title, style: Theme.of(context).textTheme.titleLarge),
-                        const SizedBox(height: 6),
-                        Text(item.summary, style: const TextStyle(color: AppColors.textSecondary)),
-                        gap12,
-                        Text(item.content!, style: const TextStyle(fontSize: 16)),
-                      ],
-                    ),
+              context: context,
+              showDragHandle: true,
+              builder: (context) => SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(item.title, style: Theme.of(context).textTheme.titleLarge),
+                      const SizedBox(height: 6),
+                      Text(item.summary, style: TextStyle(color: AppColors.textSecondary)),
+                      gap12,
+                      Text(item.content!, style: const TextStyle(fontSize: 16)),
+                    ],
                   ),
                 ),
               ),
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(child: Text(item.title, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800))),
+              Expanded(
+                child: Text(item.title, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800)),
+              ),
               StatusChip(
                 convocation ? 'Convocation' : 'Annonce',
                 tone: convocation ? StatusTone.warning : StatusTone.success,
@@ -82,7 +84,7 @@ class _AnnouncementCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text(item.summary, style: const TextStyle(fontSize: 16, color: AppColors.textSecondary)),
+          Text(item.summary, style: TextStyle(fontSize: 16, color: AppColors.textSecondary)),
         ],
       ),
     );

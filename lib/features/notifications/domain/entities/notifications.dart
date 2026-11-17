@@ -66,6 +66,18 @@ class NotificationFeed extends Equatable {
 class NotificationPreferences extends Equatable {
   const NotificationPreferences({required this.childId, required this.channels, required this.byType});
 
+  /// Canal utilisé par défaut pour toutes les alertes de l'application.
+  static const defaultChannel = NotificationChannel.push;
+
+  /// Réglage initial : toutes les alertes en notification push, SMS et email désactivés.
+  factory NotificationPreferences.defaults(String childId) => NotificationPreferences(
+    childId: childId,
+    channels: const {defaultChannel},
+    byType: {
+      for (final type in NotificationType.values) type: const {defaultChannel},
+    },
+  );
+
   final String childId;
 
   /// Canaux activés globalement.
@@ -77,8 +89,7 @@ class NotificationPreferences extends Equatable {
   NotificationPreferences copyWith({
     Set<NotificationChannel>? channels,
     Map<NotificationType, Set<NotificationChannel>>? byType,
-  }) =>
-      NotificationPreferences(childId: childId, channels: channels ?? this.channels, byType: byType ?? this.byType);
+  }) => NotificationPreferences(childId: childId, channels: channels ?? this.channels, byType: byType ?? this.byType);
 
   @override
   List<Object?> get props => [childId, channels, byType];

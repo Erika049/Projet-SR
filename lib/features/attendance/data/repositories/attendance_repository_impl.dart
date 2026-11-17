@@ -32,21 +32,23 @@ class AttendanceRepositoryImpl implements AttendanceRepository {
 
   @override
   Future<Result<bool>> saveRollCall(RollCall rollCall) => guard(() async {
-        if (!await _network.isConnected) {
-          await _queue.put(PendingOperation(
-            id: rollCall.id,
-            kind: 'appel',
-            label: 'Appel · ${rollCall.className} · ${DateFormat('dd MMM', 'fr_FR').format(rollCall.start)}',
-            draft: false,
-            createdAt: DateTime.now(),
-            payload: AttendanceMapper.rollCallToJson(rollCall),
-          ));
-          return false;
-        }
-        await _remote.saveRollCall(rollCall);
-        await _queue.remove(rollCall.id);
-        return true;
-      });
+    if (!await _network.isConnected) {
+      await _queue.put(
+        PendingOperation(
+          id: rollCall.id,
+          kind: 'appel',
+          label: 'Appel · ${rollCall.className} · ${DateFormat('dd MMM', 'fr_FR').format(rollCall.start)}',
+          draft: false,
+          createdAt: DateTime.now(),
+          payload: AttendanceMapper.rollCallToJson(rollCall),
+        ),
+      );
+      return false;
+    }
+    await _remote.saveRollCall(rollCall);
+    await _queue.remove(rollCall.id);
+    return true;
+  });
 
   @override
   Future<Result<MyAttendance>> getMyAttendance() => guard(_remote.getMyAttendance);

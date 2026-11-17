@@ -9,6 +9,8 @@ import '../../features/attendance/presentation/pages/my_attendance_page.dart';
 import '../../features/attendance/presentation/pages/roll_call_page.dart';
 import '../../features/auth/presentation/pages/choose_establishment_page.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
+import '../../features/auth/presentation/pages/new_password_page.dart';
+import '../../features/auth/presentation/pages/reset_code_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/otp_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
@@ -74,7 +76,8 @@ GoRouter createRouter(SessionCubit session) {
         case SessionStatus.authenticated:
           final home = s.user!.isParent ? Routes.parentHome : Routes.teacherHome;
           final otherSpace = s.user!.isParent ? Routes.teacherHome : Routes.parentHome;
-          final isAuthScreen = loc == Routes.welcome ||
+          final isAuthScreen =
+              loc == Routes.welcome ||
               loc == Routes.sessionExpired ||
               loc == Routes.chooseEstablishment ||
               Routes.publicRoutes.contains(loc);
@@ -86,8 +89,19 @@ GoRouter createRouter(SessionCubit session) {
       GoRoute(path: Routes.welcome, builder: (_, _) => const WelcomePage()),
       GoRoute(path: Routes.login, builder: (_, _) => const LoginPage()),
       GoRoute(path: Routes.register, builder: (_, _) => const RegisterPage()),
-      GoRoute(path: Routes.otp, builder: (_, s) => OtpPage(phone: s.extra as String? ?? '')),
+      GoRoute(
+        path: Routes.otp,
+        builder: (_, s) => OtpPage(phone: s.extra as String? ?? ''),
+      ),
       GoRoute(path: Routes.forgotPassword, builder: (_, _) => const ForgotPasswordPage()),
+      GoRoute(
+        path: Routes.resetCode,
+        builder: (_, s) => ResetCodePage(phone: s.extra as String? ?? ''),
+      ),
+      GoRoute(
+        path: Routes.newPassword,
+        builder: (_, s) => NewPasswordPage(resetToken: s.extra as String? ?? ''),
+      ),
       GoRoute(path: Routes.sessionExpired, builder: (_, _) => const SessionExpiredPage()),
       GoRoute(path: Routes.chooseEstablishment, builder: (_, _) => const ChooseEstablishmentPage()),
 
@@ -95,53 +109,60 @@ GoRouter createRouter(SessionCubit session) {
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => ParentShell(shell: shell),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: Routes.parentHome,
-              builder: (_, _) => const ParentHomePage(),
-              routes: [
-                GoRoute(
-                  path: 'enfant/:id',
-                  builder: (_, s) => ChildProfilePage(childId: s.pathParameters['id']!),
-                ),
-              ],
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: Routes.parentTracking,
-              builder: (_, s) => ParentTrackingPage(
-                initialTab: int.tryParse(s.uri.queryParameters['tab'] ?? '') ?? 0,
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.parentHome,
+                builder: (_, _) => const ParentHomePage(),
+                routes: [
+                  GoRoute(
+                    path: 'enfant/:id',
+                    builder: (_, s) => ChildProfilePage(childId: s.pathParameters['id']!),
+                  ),
+                ],
               ),
-              routes: [
-                GoRoute(path: 'bulletins', builder: (_, _) => const ReportCardsPage()),
-                GoRoute(
-                  path: 'justifier',
-                  builder: (_, s) => JustifyAbsencePage(record: s.extra! as AttendanceRecord),
-                ),
-                GoRoute(path: 'declarer', builder: (_, _) => const DeclarePaymentPage()),
-                GoRoute(path: 'recus', builder: (_, _) => const ReceiptsPage()),
-              ],
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: Routes.parentNotifications,
-              builder: (_, _) => const NotificationsPage(),
-              routes: [GoRoute(path: 'annonces', builder: (_, _) => const AnnouncementsPage())],
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: Routes.parentProfile,
-              builder: (_, _) => const ParentProfilePage(),
-              routes: [
-                GoRoute(path: 'enfants', builder: (_, _) => const MyChildrenPage()),
-                GoRoute(path: 'lier', builder: (_, _) => const LinkChildPage()),
-                GoRoute(path: 'preferences', builder: (_, _) => const NotificationPreferencesPage()),
-              ],
-            ),
-          ]),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.parentTracking,
+                builder: (_, s) =>
+                    ParentTrackingPage(initialTab: int.tryParse(s.uri.queryParameters['tab'] ?? '') ?? 0),
+                routes: [
+                  GoRoute(path: 'bulletins', builder: (_, _) => const ReportCardsPage()),
+                  GoRoute(
+                    path: 'justifier',
+                    builder: (_, s) => JustifyAbsencePage(record: s.extra! as AttendanceRecord),
+                  ),
+                  GoRoute(path: 'declarer', builder: (_, _) => const DeclarePaymentPage()),
+                  GoRoute(path: 'recus', builder: (_, _) => const ReceiptsPage()),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.parentNotifications,
+                builder: (_, _) => const NotificationsPage(),
+                routes: [GoRoute(path: 'annonces', builder: (_, _) => const AnnouncementsPage())],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.parentProfile,
+                builder: (_, _) => const ParentProfilePage(),
+                routes: [
+                  GoRoute(path: 'enfants', builder: (_, _) => const MyChildrenPage()),
+                  GoRoute(path: 'lier', builder: (_, _) => const LinkChildPage()),
+                  GoRoute(path: 'preferences', builder: (_, _) => const NotificationPreferencesPage()),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
 
@@ -149,43 +170,60 @@ GoRouter createRouter(SessionCubit session) {
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => TeacherShell(shell: shell),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: Routes.teacherHome,
-              builder: (_, _) => const TeacherHomePage(),
-              routes: [
-                GoRoute(path: 'emploi-du-temps', builder: (_, _) => const TimetablePage()),
-                GoRoute(path: 'synchronisation', builder: (_, _) => const SyncPage()),
-              ],
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: Routes.teacherGradesBase,
-              builder: (_, s) => GradeEntryPage(classId: classOf(s)),
-              routes: [
-                GoRoute(
-                  path: 'corriger',
-                  builder: (_, s) {
-                    final args = s.extra! as ({GradeSheet sheet, StudentGrade grade});
-                    return GradeCorrectionPage(sheet: args.sheet, grade: args.grade);
-                  },
-                ),
-                GoRoute(path: 'appreciations', builder: (_, s) => AppreciationsPage(classId: classOf(s))),
-                GoRoute(path: 'statistiques', builder: (_, s) => ClassStatsPage(classId: classOf(s))),
-              ],
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(path: Routes.teacherRollCallBase, builder: (_, s) => RollCallPage(classId: classOf(s))),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: Routes.teacherProfile,
-              builder: (_, _) => const TeacherProfilePage(),
-              routes: [GoRoute(path: 'presence', builder: (_, _) => const MyAttendancePage())],
-            ),
-          ]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.teacherHome,
+                builder: (_, _) => const TeacherHomePage(),
+                routes: [
+                  GoRoute(path: 'emploi-du-temps', builder: (_, _) => const TimetablePage()),
+                  GoRoute(path: 'synchronisation', builder: (_, _) => const SyncPage()),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.teacherGradesBase,
+                builder: (_, s) => GradeEntryPage(classId: classOf(s)),
+                routes: [
+                  GoRoute(
+                    path: 'corriger',
+                    builder: (_, s) {
+                      final args = s.extra! as ({GradeSheet sheet, StudentGrade grade});
+                      return GradeCorrectionPage(sheet: args.sheet, grade: args.grade);
+                    },
+                  ),
+                  GoRoute(
+                    path: 'appreciations',
+                    builder: (_, s) => AppreciationsPage(classId: classOf(s)),
+                  ),
+                  GoRoute(
+                    path: 'statistiques',
+                    builder: (_, s) => ClassStatsPage(classId: classOf(s)),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.teacherRollCallBase,
+                builder: (_, s) => RollCallPage(classId: classOf(s)),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.teacherProfile,
+                builder: (_, _) => const TeacherProfilePage(),
+                routes: [GoRoute(path: 'presence', builder: (_, _) => const MyAttendancePage())],
+              ),
+            ],
+          ),
         ],
       ),
     ],

@@ -25,7 +25,9 @@ class PillSelector extends StatelessWidget {
       children: [
         for (var i = 0; i < labels.length; i++) ...[
           if (i > 0) const SizedBox(width: 10),
-          Expanded(child: _Pill(label: labels[i], active: i == selected, height: height, onTap: () => onChanged(i))),
+          Expanded(
+            child: _Pill(label: labels[i], active: i == selected, height: height, onTap: () => onChanged(i)),
+          ),
         ],
       ],
     );
@@ -47,9 +49,7 @@ class _Pill extends StatelessWidget {
       button: true,
       child: Material(
         color: active ? AppColors.navy : AppColors.surface,
-        shape: StadiumBorder(
-          side: active ? BorderSide.none : const BorderSide(color: AppColors.border, width: 1.2),
-        ),
+        shape: StadiumBorder(side: active ? BorderSide.none : BorderSide(color: AppColors.border, width: 1.2)),
         child: InkWell(
           customBorder: const StadiumBorder(),
           onTap: onTap,

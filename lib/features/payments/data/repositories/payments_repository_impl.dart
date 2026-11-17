@@ -14,13 +14,8 @@ class PaymentsRepositoryImpl implements PaymentsRepository {
   Future<Result<List<PaymentRecord>>> getHistory(String childId) => guard(() => _remote.getHistory(childId));
 
   @override
-  Future<Result<PaymentRecord>> declarePayment({
-    required String childId,
-    required PaymentMode mode,
-    required int amount,
-    String? reference,
-  }) =>
-      guard(() => _remote.declarePayment(childId, mode, amount, reference));
+  Future<Result<PaymentRecord>> declarePayment(PaymentDeclaration declaration) =>
+      guard(() => _remote.declarePayment(declaration));
 
   @override
   Future<Result<String>> downloadReceipt(String paymentId) => guard(() => _remote.downloadReceipt(paymentId));

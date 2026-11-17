@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace = "com.example.g5.schoolconnect"
-    compileSdk = flutter.compileSdkVersion
+    // 37 : requis par permission_handler_android (autorisations notifications / fichiers).
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

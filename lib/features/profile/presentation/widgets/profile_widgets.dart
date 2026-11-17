@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/settings/permission_prompts.dart';
 import '../../../../app/settings/settings_cubit.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/widgets/widgets.dart';
@@ -16,7 +17,7 @@ class IdentityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const muted = TextStyle(fontSize: 15, color: AppColors.textSecondary);
+    final muted = TextStyle(fontSize: 15, color: AppColors.textSecondary);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,6 +48,92 @@ class LanguageRow extends StatelessWidget {
   }
 }
 
+/// Ligne de réglage avec interrupteur : « Libellé   Activé  [◉] ».
+class SettingSwitchRow extends StatelessWidget {
+  const SettingSwitchRow({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.onChanged,
+    this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return MergeSemantics(
+      child: Row(
+        children: [
+          Icon(icon, color: value ? AppColors.green : AppColors.textSecondary),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontSize: 17)),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(subtitle!, style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+                ],
+              ],
+            ),
+          ),
+          Text(
+            value ? 'Activé' : 'Désactivé',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: value ? AppColors.green : AppColors.textSecondary,
+            ),
+          ),
+          Switch(value: value, activeTrackColor: AppColors.green, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+}
+
+/// « Notifications push » : relié à l'autorisation du téléphone.
+class NotificationsRow extends StatelessWidget {
+  const NotificationsRow({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<SettingsCubit>().state;
+    final blocked = state.notificationsWanted && !state.notificationsAllowed;
+    return SettingSwitchRow(
+      icon: state.notificationsOn ? Icons.notifications_active_outlined : Icons.notifications_off_outlined,
+      title: 'Notifications',
+      subtitle: blocked ? 'Non autorisées par le téléphone' : 'Absences, notes, bulletins, paiements',
+      value: state.notificationsOn,
+      onChanged: (on) => on ? enableNotifications(context) : context.read<SettingsCubit>().disableNotifications(),
+    );
+  }
+}
+
+/// « Thème sombre » : bascule thème clair / thème sombre.
+class DarkModeRow extends StatelessWidget {
+  const DarkModeRow({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = context.watch<SettingsCubit>().state.darkMode;
+    return SettingSwitchRow(
+      icon: dark ? Icons.dark_mode_rounded : Icons.light_mode_outlined,
+      title: 'Thème sombre',
+      subtitle: dark ? 'Thème sombre utilisé' : 'Thème clair utilisé',
+      value: dark,
+      onChanged: context.read<SettingsCubit>().setDarkMode,
+    );
+  }
+}
+
 /// « Mode faible consommation  Activé ».
 class LowDataRow extends StatelessWidget {
   const LowDataRow({super.key});
@@ -54,16 +141,11 @@ class LowDataRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsCubit>();
-    final on = settings.state.lowDataMode;
-    return Row(
-      children: [
-        const Expanded(child: Text('Mode faible consommation', style: TextStyle(fontSize: 17))),
-        Text(
-          on ? 'Activé' : 'Désactivé',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: on ? AppColors.green : AppColors.textSecondary),
-        ),
-        Switch(value: on, activeTrackColor: AppColors.green, onChanged: settings.setLowDataMode),
-      ],
+    return SettingSwitchRow(
+      icon: Icons.data_saver_on_outlined,
+      title: 'Mode faible consommation',
+      value: settings.state.lowDataMode,
+      onChanged: settings.setLowDataMode,
     );
   }
 }

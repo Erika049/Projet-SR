@@ -58,7 +58,7 @@ class _Report extends StatelessWidget {
   Widget build(BuildContext context) {
     final average = report.average;
     if (report.subjects.isEmpty) {
-      return const AppCard(
+      return AppCard(
         child: Text(
           'Les notes de cette période ne sont pas encore publiées.',
           style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
@@ -113,7 +113,7 @@ class _Report extends StatelessWidget {
                 ),
               ],
               const Divider(height: 24),
-              const Text(
+              Text(
                 'Moyenne = Σ(note × coef.) / Σ coef.',
                 style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
@@ -148,12 +148,15 @@ class _Row extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final base = header
-        ? const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textSecondary)
+        ? TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textSecondary)
         : const TextStyle(fontSize: 17);
     return Row(
       children: [
         Expanded(flex: 5, child: Text(subject, style: base)),
-        Expanded(flex: 2, child: Text(coef, textAlign: TextAlign.center, style: base)),
+        Expanded(
+          flex: 2,
+          child: Text(coef, textAlign: TextAlign.center, style: base),
+        ),
         Expanded(
           flex: 3,
           child: Text(

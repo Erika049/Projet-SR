@@ -41,6 +41,14 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Result<void>> requestPasswordReset(String identifier) => guard(() => _remote.requestPasswordReset(identifier));
 
   @override
+  Future<Result<String>> verifyResetCode({required String phone, required String code}) =>
+      guard(() => _remote.verifyResetCode(phone, code));
+
+  @override
+  Future<Result<void>> resetPassword({required String resetToken, required String newPassword}) =>
+      guard(() => _remote.resetPassword(resetToken, newPassword));
+
+  @override
   Future<Result<AppUser?>> restoreSession() async => Ok(_local.readUser());
 
   @override

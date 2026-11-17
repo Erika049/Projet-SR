@@ -65,18 +65,11 @@ class OtpState extends Equatable {
   List<Object?> get props => [submit, secondsLeft];
 }
 
-/// Écran « Vérification » (étape 2) avec minuteur de renvoi du code.
-class OtpCubit extends Cubit<OtpState> {
-  OtpCubit(this._verify, this._resend, this.phone) : super(const OtpState()) {
-    _startTimer();
-  }
-
-  final VerifyOtp _verify;
-  final ResendOtp _resend;
-  final String phone;
+/// Minuteur « Renvoyer le code dans 00:45 » commun aux écrans de code SMS.
+mixin ResendCountdown on Cubit<OtpState> {
   Timer? _timer;
 
-  void _startTimer() {
+  void startCountdown() {
     _timer?.cancel();
     emit(OtpState(submit: state.submit, secondsLeft: AppConstants.otpResendDelay.inSeconds));
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
@@ -85,6 +78,25 @@ class OtpCubit extends Cubit<OtpState> {
       if (left <= 0) t.cancel();
     });
   }
+
+  void emitSubmit(SubmitState submit) => emit(OtpState(submit: submit, secondsLeft: state.secondsLeft));
+
+  @override
+  Future<void> close() {
+    _timer?.cancel();
+    return super.close();
+  }
+}
+
+/// Écran « Vérification » (étape 2) avec minuteur de renvoi du code.
+class OtpCubit extends Cubit<OtpState> with ResendCountdown {
+  OtpCubit(this._verify, this._resend, this.phone) : super(const OtpState()) {
+    startCountdown();
+  }
+
+  final VerifyOtp _verify;
+  final ResendOtp _resend;
+  final String phone;
 
   Future<AppUser?> verify(String code) async {
     emit(
@@ -108,17 +120,11 @@ class OtpCubit extends Cubit<OtpState> {
   Future<void> resend() async {
     if (!state.canResend) return;
     await _resend(phone);
-    _startTimer();
-  }
-
-  @override
-  Future<void> close() {
-    _timer?.cancel();
-    return super.close();
+    startCountdown();
   }
 }
 
-/// Écran « Mot de passe oublié ».
+/// Mot de passe oublié — étape 1 : numéro de téléphone.
 class ForgotPasswordCubit extends Cubit<SubmitState> {
   ForgotPasswordCubit(this._request) : super(const SubmitState());
   final RequestPasswordReset _request;
@@ -126,6 +132,56 @@ class ForgotPasswordCubit extends Cubit<SubmitState> {
   Future<void> submit(String identifier) async {
     emit(const SubmitState(status: ViewStatus.loading));
     final result = await _request(identifier);
+    emit(
+      result.fold(
+        (f) => SubmitState(status: ViewStatus.failure, error: f.message),
+        (_) => const SubmitState(status: ViewStatus.success),
+      ),
+    );
+  }
+}
+
+/// Mot de passe oublié — étape 2 : code SMS, avec renvoi possible.
+class ResetCodeCubit extends Cubit<OtpState> with ResendCountdown {
+  ResetCodeCubit(this._verify, this._request, this.phone) : super(const OtpState()) {
+    startCountdown();
+  }
+
+  final VerifyResetCode _verify;
+  final RequestPasswordReset _request;
+  final String phone;
+
+  /// Retourne le jeton de réinitialisation, ou `null` si le code est refusé.
+  Future<String?> verify(String code) async {
+    emitSubmit(const SubmitState(status: ViewStatus.loading));
+    final result = await _verify((phone: phone, code: code));
+    return result.fold(
+      (f) {
+        emitSubmit(SubmitState(status: ViewStatus.failure, error: f.message));
+        return null;
+      },
+      (token) {
+        emitSubmit(const SubmitState(status: ViewStatus.success));
+        return token;
+      },
+    );
+  }
+
+  Future<void> resend() async {
+    if (!state.canResend) return;
+    await _request(phone);
+    startCountdown();
+  }
+}
+
+/// Mot de passe oublié — étape 3 : nouveau mot de passe.
+class NewPasswordCubit extends Cubit<SubmitState> {
+  NewPasswordCubit(this._reset) : super(const SubmitState());
+  final ResetPassword _reset;
+
+  Future<void> submit(ResetPasswordParams params) async {
+    emit(const SubmitState(status: ViewStatus.loading));
+    final result = await _reset(params);
     emit(
       result.fold(
         (f) => SubmitState(status: ViewStatus.failure, error: f.message),

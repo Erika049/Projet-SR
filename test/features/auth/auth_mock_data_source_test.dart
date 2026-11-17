@@ -57,4 +57,31 @@ void main() {
       expect(source.verifyOtp('655123456', '000000'), throwsA(isA<AuthException>()));
     });
   });
+
+  group('Mot de passe oublié', () {
+    test('code → nouveau mot de passe → connexion avec le nouveau seulement', () async {
+      await source.requestPasswordReset('+237 690 00 00 01');
+      final token = await source.verifyResetCode('690000001', DemoAccounts.otp);
+      await source.resetPassword(token, 'nouveau1');
+
+      final session = await source.login('690000001', 'nouveau1');
+      expect(session.user.id, 'u-parent-1');
+      expect(source.login('690000001', DemoAccounts.parentPassword), throwsA(isA<AuthException>()));
+    });
+
+    test('la demande ne révèle pas si le numéro est inscrit', () async {
+      await expectLater(source.requestPasswordReset('699999999'), completes);
+      expect(source.verifyResetCode('699999999', DemoAccounts.otp), throwsA(isA<AuthException>()));
+    });
+
+    test('un code faux est refusé', () {
+      expect(source.verifyResetCode('690000001', '000000'), throwsA(isA<AuthException>()));
+    });
+
+    test('le jeton ne sert qu’une fois', () async {
+      final token = await source.verifyResetCode('670000001', DemoAccounts.otp);
+      await source.resetPassword(token, 'nouveau1');
+      expect(source.resetPassword(token, 'autre12'), throwsA(isA<AuthException>()));
+    });
+  });
 }

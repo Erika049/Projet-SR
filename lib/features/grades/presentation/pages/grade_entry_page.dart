@@ -20,10 +20,10 @@ class GradeEntryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocProvider(
-        key: ValueKey(classId),
-        create: (_) => sl<GradeSheetCubit>()..load(classId),
-        child: _GradeEntryView(classId: classId),
-      );
+    key: ValueKey(classId),
+    create: (_) => sl<GradeSheetCubit>()..load(classId),
+    child: _GradeEntryView(classId: classId),
+  );
 }
 
 class _GradeEntryView extends StatelessWidget {
@@ -177,7 +177,7 @@ class _GradeRow extends StatelessWidget {
                         textAlign: TextAlign.end,
                         keyboardType: TextInputType.text,
                         onChanged: onChanged,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.navy),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.navy),
                         decoration: InputDecoration(
                           hintText: '—',
                           errorText: error == null ? null : '',
@@ -187,15 +187,12 @@ class _GradeRow extends StatelessWidget {
                     : Text(
                         input.isEmpty ? '—' : input,
                         textAlign: TextAlign.end,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.navy),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.navy),
                       ),
               ),
             ],
           ),
-          if (error != null) ...[
-            const SizedBox(height: 8),
-            StatusChip(error!, tone: StatusTone.danger),
-          ],
+          if (error != null) ...[const SizedBox(height: 8), StatusChip(error!, tone: StatusTone.danger)],
         ],
       ),
     );

@@ -65,7 +65,7 @@ class FinancialSituationView extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           'À régler avant le ${DateFormat('d MMMM', 'fr_FR').format(i.dueDate)}',
-                          style: const TextStyle(fontSize: 15, color: AppColors.textSecondary),
+                          style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
                         ),
                       ],
                     ],
@@ -108,12 +108,12 @@ class FinancialSituationView extends StatelessWidget {
                             ),
                             Text(
                               '${Formatters.fcfa(s.lastReceipt!.amount)} · PDF',
-                              style: const TextStyle(fontSize: 15, color: AppColors.textSecondary),
+                              style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
                             ),
                           ],
                         ),
                 ),
-                const Text('Historique ›', style: TextStyle(fontSize: 16, color: AppColors.textSecondary)),
+                Text('Historique ›', style: TextStyle(fontSize: 16, color: AppColors.textSecondary)),
               ],
             ),
           ),
@@ -138,7 +138,7 @@ class _SoonTile extends StatelessWidget {
       child: Text(
         label,
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
       ),
     );
   }

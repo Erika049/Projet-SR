@@ -48,11 +48,12 @@ class _ForgotViewState extends State<_ForgotView> {
     return BlocListener<ForgotPasswordCubit, SubmitState>(
       listener: (context, s) {
         if (s.status == ViewStatus.failure) context.showMessage(s.error!, error: true);
-        if (s.isDone) context.showMessage('Code envoyé par SMS.');
+        if (s.isDone) context.push(Routes.resetCode, extra: _phone.text.trim());
       },
       child: AuthLayout(
         title: 'Mot de passe oublié',
         subtitle: 'Entrez votre numéro de téléphone. Nous vous envoyons un code pour choisir un nouveau mot de passe.',
+        step: (current: 1, total: 3),
         footer: AuthLink(
           text: 'Vous vous en souvenez ?',
           action: 'Retour à la connexion',

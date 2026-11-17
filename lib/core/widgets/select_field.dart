@@ -30,12 +30,9 @@ class SelectField<T> extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(
-              labelOf(value),
-              style: const TextStyle(fontSize: 17, color: AppColors.textSecondary),
-            ),
+            child: Text(labelOf(value), style: TextStyle(fontSize: 17, color: AppColors.textSecondary)),
           ),
-          if (options.length > 1) const Icon(Icons.expand_more_rounded, color: AppColors.textSecondary),
+          if (options.length > 1) Icon(Icons.expand_more_rounded, color: AppColors.textSecondary),
         ],
       ),
     );
@@ -59,7 +56,7 @@ class SelectField<T> extends StatelessWidget {
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 24),
                 title: Text(labelOf(o)),
-                trailing: o == value ? const Icon(Icons.check_rounded, color: AppColors.navy) : null,
+                trailing: o == value ? Icon(Icons.check_rounded, color: AppColors.navy) : null,
                 onTap: () => Navigator.pop(context, o),
               ),
           ],

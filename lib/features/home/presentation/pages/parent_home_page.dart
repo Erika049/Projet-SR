@@ -47,55 +47,59 @@ class _ParentHomeViewState extends State<_ParentHomeView> {
       eyebrow: 'SCHOOLCONNECT · PARENT',
       title: 'Bonjour, ${user?.greetingName ?? ''}',
       onRefresh: refresh,
-      body: Builder(builder: (context) {
-        if (childrenState.children.isEmpty && childrenState.status == ViewStatus.success) {
-          return MessageView(
-            icon: Icons.family_restroom_rounded,
-            title: 'Aucun enfant lié',
-            message: 'Saisissez le code remis par l’école pour suivre votre enfant.',
-            actionLabel: 'Lier un enfant',
-            onAction: () => context.push(Routes.parentLinkChild),
-          );
-        }
-        return DataStateBuilder(
-          state: overview,
-          onRetry: refresh,
-          builder: (context, data) {
-            final children = childrenState.children;
-            final shown = _filter == 0 ? children : [children[_filter - 1]];
-            final highlights = data.highlights
-                .where((h) => _filter == 0 || h.childId == null || h.childId == children[_filter - 1].id)
-                .toList();
-            return ListView(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-              physics: const AlwaysScrollableScrollPhysics(),
-              children: [
-                Text(Formatters.longDate(DateTime.now()),
-                    style: const TextStyle(fontSize: 16, color: AppColors.textSecondary)),
-                gap12,
-                if (children.length > 1) ...[
-                  PillSelector(
-                    labels: ['Tous', for (final c in children) c.prenom],
-                    selected: _filter,
-                    onChanged: (i) => setState(() => _filter = i),
-                  ),
-                  gap12,
-                ],
-                for (final (i, c) in shown.indexed) ...[
-                  _ChildCard(child: c, summary: data.summaryOf(c.id), accent: i == 0),
-                  gap12,
-                ],
-                if (highlights.isNotEmpty) ...[
-                  const SectionTitle('À ne pas manquer'),
-                  AppCard(
-                    child: DividedColumn(children: [for (final h in highlights) _HighlightRow(highlight: h)]),
-                  ),
-                ],
-              ],
+      body: Builder(
+        builder: (context) {
+          if (childrenState.children.isEmpty && childrenState.status == ViewStatus.success) {
+            return MessageView(
+              icon: Icons.family_restroom_rounded,
+              title: 'Aucun enfant lié',
+              message: 'Saisissez le code remis par l’école pour suivre votre enfant.',
+              actionLabel: 'Lier un enfant',
+              onAction: () => context.push(Routes.parentLinkChild),
             );
-          },
-        );
-      }),
+          }
+          return DataStateBuilder(
+            state: overview,
+            onRetry: refresh,
+            builder: (context, data) {
+              final children = childrenState.children;
+              final shown = _filter == 0 ? children : [children[_filter - 1]];
+              final highlights = data.highlights
+                  .where((h) => _filter == 0 || h.childId == null || h.childId == children[_filter - 1].id)
+                  .toList();
+              return ListView(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  Text(
+                    Formatters.longDate(DateTime.now()),
+                    style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
+                  ),
+                  gap12,
+                  if (children.length > 1) ...[
+                    PillSelector(
+                      labels: ['Tous', for (final c in children) c.prenom],
+                      selected: _filter,
+                      onChanged: (i) => setState(() => _filter = i),
+                    ),
+                    gap12,
+                  ],
+                  for (final (i, c) in shown.indexed) ...[
+                    _ChildCard(child: c, summary: data.summaryOf(c.id), accent: i == 0),
+                    gap12,
+                  ],
+                  if (highlights.isNotEmpty) ...[
+                    const SectionTitle('À ne pas manquer'),
+                    AppCard(
+                      child: DividedColumn(children: [for (final h in highlights) _HighlightRow(highlight: h)]),
+                    ),
+                  ],
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
@@ -118,8 +122,10 @@ class _ChildCard extends StatelessWidget {
         children: [
           Text(child.fullName, style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
-          Text('${child.classe} · ${child.etablissement}',
-              style: const TextStyle(fontSize: 15, color: AppColors.textSecondary)),
+          Text(
+            '${child.classe} · ${child.etablissement}',
+            style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
+          ),
           if (s != null) ...[
             gap12,
             Wrap(

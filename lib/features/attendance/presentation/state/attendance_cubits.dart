@@ -41,10 +41,12 @@ class JustifyCubit extends Cubit<SubmitState> {
   Future<void> submit(JustifyParams params) async {
     emit(const SubmitState(status: ViewStatus.loading));
     final result = await _justify(params);
-    emit(result.fold(
-      (f) => SubmitState(status: ViewStatus.failure, error: f.message),
-      (_) => const SubmitState(status: ViewStatus.success),
-    ));
+    emit(
+      result.fold(
+        (f) => SubmitState(status: ViewStatus.failure, error: f.message),
+        (_) => const SubmitState(status: ViewStatus.success),
+      ),
+    );
   }
 }
 
@@ -93,21 +95,25 @@ class RollCallCubit extends Cubit<RollCallState> {
   void mark(String studentId, RollCallStatus status) {
     final rc = state.rollCall.data;
     if (rc == null) return;
-    emit(state.copyWith(
-      rollCall: state.rollCall.success(rc.withEntries([
-        for (final e in rc.entries) e.studentId == studentId ? e.withStatus(status) : e,
-      ])),
-    ));
+    emit(
+      state.copyWith(
+        rollCall: state.rollCall.success(
+          rc.withEntries([for (final e in rc.entries) e.studentId == studentId ? e.withStatus(status) : e]),
+        ),
+      ),
+    );
   }
 
   void allPresent() {
     final rc = state.rollCall.data;
     if (rc == null) return;
-    emit(state.copyWith(
-      rollCall: state.rollCall.success(
-        rc.withEntries([for (final e in rc.entries) e.withStatus(RollCallStatus.present)]),
+    emit(
+      state.copyWith(
+        rollCall: state.rollCall.success(
+          rc.withEntries([for (final e in rc.entries) e.withStatus(RollCallStatus.present)]),
+        ),
       ),
-    ));
+    );
   }
 
   Future<void> save() async {
@@ -115,15 +121,17 @@ class RollCallCubit extends Cubit<RollCallState> {
     if (rc == null) return;
     emit(state.copyWith(saving: true));
     final result = await _save(rc);
-    emit(state.copyWith(
-      saving: false,
-      message: result.fold(
-        (f) => f.message,
-        (online) => online
-            ? 'Appel enregistré. Les parents des absents sont notifiés.'
-            : 'Hors connexion : appel enregistré sur ce téléphone.',
+    emit(
+      state.copyWith(
+        saving: false,
+        message: result.fold(
+          (f) => f.message,
+          (online) => online
+              ? 'Appel enregistré. Les parents des absents sont notifiés.'
+              : 'Hors connexion : appel enregistré sur ce téléphone.',
+        ),
       ),
-    ));
+    );
   }
 }
 

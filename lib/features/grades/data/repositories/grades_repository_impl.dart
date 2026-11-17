@@ -32,22 +32,24 @@ class GradesRepositoryImpl implements GradesRepository {
 
   @override
   Future<Result<GradeSheet>> saveGradeSheet(GradeSheet sheet, {required bool submit}) => guard(() async {
-        if (!await _network.isConnected) {
-          // Hors connexion : brouillon local, envoyé à la prochaine synchronisation.
-          await _queue.put(PendingOperation(
-            id: 'notes-${sheet.evaluationId}',
-            kind: 'notes',
-            label: 'Notes · ${sheet.className} · ${sheet.period.label}',
-            draft: !submit,
-            createdAt: DateTime.now(),
-            payload: GradesMapper.sheetToJson(sheet),
-          ));
-          return sheet.copyWith(status: GradeSheetStatus.brouillon);
-        }
-        final saved = await _remote.saveGradeSheet(sheet, submit: submit);
-        await _queue.remove('notes-${sheet.evaluationId}');
-        return saved;
-      });
+    if (!await _network.isConnected) {
+      // Hors connexion : brouillon local, envoyé à la prochaine synchronisation.
+      await _queue.put(
+        PendingOperation(
+          id: 'notes-${sheet.evaluationId}',
+          kind: 'notes',
+          label: 'Notes · ${sheet.className} · ${sheet.period.label}',
+          draft: !submit,
+          createdAt: DateTime.now(),
+          payload: GradesMapper.sheetToJson(sheet),
+        ),
+      );
+      return sheet.copyWith(status: GradeSheetStatus.brouillon);
+    }
+    final saved = await _remote.saveGradeSheet(sheet, submit: submit);
+    await _queue.remove('notes-${sheet.evaluationId}');
+    return saved;
+  });
 
   @override
   Future<Result<void>> correctGrade({
@@ -55,12 +57,10 @@ class GradesRepositoryImpl implements GradesRepository {
     required String studentId,
     required double value,
     required String reason,
-  }) =>
-      guard(() => _remote.correctGrade(evaluationId, studentId, value, reason));
+  }) => guard(() => _remote.correctGrade(evaluationId, studentId, value, reason));
 
   @override
-  Future<Result<List<Appreciation>>> getAppreciations(String classId) =>
-      guard(() => _remote.getAppreciations(classId));
+  Future<Result<List<Appreciation>>> getAppreciations(String classId) => guard(() => _remote.getAppreciations(classId));
 
   @override
   Future<Result<void>> saveAppreciations(String classId, List<Appreciation> items) =>

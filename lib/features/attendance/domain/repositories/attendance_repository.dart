@@ -4,11 +4,7 @@ import '../entities/attendance.dart';
 abstract interface class AttendanceRepository {
   // Parent
   Future<Result<AttendanceSummary>> getChildAttendance(String childId, DateTime month);
-  Future<Result<void>> justifyAbsence({
-    required String recordId,
-    required String reason,
-    String? attachmentPath,
-  });
+  Future<Result<void>> justifyAbsence({required String recordId, required String reason, String? attachmentPath});
   Future<Result<void>> reportError(String childId, String message);
 
   // Enseignant

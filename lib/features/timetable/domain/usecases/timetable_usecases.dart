@@ -21,9 +21,8 @@ class GetTeacherClasses implements UseCase<List<TeacherClass>, NoParams> {
 
 /// Cours en cours, sinon le prochain cours de la journée.
 Course? currentOrNextCourse(List<Course> courses, DateTime now) {
-  final today = courses
-      .where((c) => c.start.year == now.year && c.start.month == now.month && c.start.day == now.day)
-      .toList()
-    ..sort((a, b) => a.start.compareTo(b.start));
+  final today =
+      courses.where((c) => c.start.year == now.year && c.start.month == now.month && c.start.day == now.day).toList()
+        ..sort((a, b) => a.start.compareTo(b.start));
   return today.where((c) => c.isOngoing(now)).firstOrNull ?? today.where((c) => c.start.isAfter(now)).firstOrNull;
 }

@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/network/api_client.dart';
 import '../../core/network/network_info.dart';
+import '../../core/permissions/app_permissions.dart';
 import '../../core/storage/local_storage.dart';
 import '../../core/storage/sync_queue.dart';
 import '../../features/attendance/data/datasources/attendance_remote_data_source.dart';
@@ -69,7 +70,8 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton(() => ApiClient(sl()))
     ..registerLazySingleton<NetworkInfo>(SimulatedNetworkInfo.new)
     ..registerLazySingleton(() => SyncQueue(sl()))
-    ..registerLazySingleton(() => SettingsCubit(sl()));
+    ..registerLazySingleton<AppPermissions>(() => const DeviceAppPermissions())
+    ..registerLazySingleton(() => SettingsCubit(sl(), sl()));
 
   // ───────── Data : datasources ─────────
   sl
@@ -107,6 +109,8 @@ Future<void> configureDependencies() async {
     ..registerFactory(() => VerifyOtp(sl()))
     ..registerFactory(() => ResendOtp(sl()))
     ..registerFactory(() => RequestPasswordReset(sl()))
+    ..registerFactory(() => VerifyResetCode(sl()))
+    ..registerFactory(() => ResetPassword(sl()))
     ..registerFactory(() => RestoreSession(sl()))
     ..registerFactory(() => GetEstablishments(sl()))
     ..registerFactory(() => SelectEstablishment(sl()))
@@ -159,24 +163,29 @@ Future<void> configureDependencies() async {
 
   // ───────── Presentation : cubits ─────────
   sl
-    ..registerLazySingleton(() => SessionCubit(
-          restoreSession: sl(),
-          getEstablishments: sl(),
-          getSelectedEstablishment: sl(),
-          selectEstablishment: sl(),
-          logout: sl(),
-        ))
+    ..registerLazySingleton(
+      () => SessionCubit(
+        restoreSession: sl(),
+        getEstablishments: sl(),
+        getSelectedEstablishment: sl(),
+        selectEstablishment: sl(),
+        logout: sl(),
+      ),
+    )
     ..registerFactory(() => LoginCubit(sl()))
     ..registerFactory(() => RegisterCubit(sl()))
     ..registerFactory(() => ForgotPasswordCubit(sl()))
+    ..registerFactory(() => NewPasswordCubit(sl()))
     ..registerFactory(() => EstablishmentsCubit(sl()))
-    ..registerFactory(() => ChildrenCubit(
-          getChildren: sl(),
-          getLinkRequests: sl(),
-          linkChild: sl(),
-          unlinkChild: sl(),
-          requestCorrection: sl(),
-        ))
+    ..registerFactory(
+      () => ChildrenCubit(
+        getChildren: sl(),
+        getLinkRequests: sl(),
+        linkChild: sl(),
+        unlinkChild: sl(),
+        requestCorrection: sl(),
+      ),
+    )
     ..registerFactory(() => ParentHomeCubit(sl()))
     ..registerFactory(() => TeacherHomeCubit(sl(), sl()))
     ..registerFactory(() => ChildGradesCubit(sl(), sl()))

@@ -37,40 +37,37 @@ class _SyncPageState extends State<SyncPage> {
   }
 
   StatusTone _tone(SyncStatus s) => switch (s) {
-        SyncStatus.envoye => StatusTone.success,
-        SyncStatus.conflit => StatusTone.danger,
-        _ => StatusTone.warning,
-      };
+    SyncStatus.envoye => StatusTone.success,
+    SyncStatus.conflit => StatusTone.danger,
+    _ => StatusTone.warning,
+  };
 
   Widget _section(String title, List<SyncItem> items, {bool resolvable = false}) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SectionTitle(title),
-          AppCard(
-            child: DividedColumn(
-              children: [
-                for (final i in items)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SectionTitle(title),
+      AppCard(
+        child: DividedColumn(
+          children: [
+            for (final i in items)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(child: Text(i.label, style: const TextStyle(fontSize: 17))),
-                          StatusChip(i.status.label, tone: _tone(i.status)),
-                        ],
-                      ),
-                      if (resolvable) ...[
-                        gap12,
-                        AppButton.secondary(label: 'Résoudre', onPressed: () => _resolve(i)),
-                      ],
+                      Expanded(child: Text(i.label, style: const TextStyle(fontSize: 17))),
+                      StatusChip(i.status.label, tone: _tone(i.status)),
                     ],
                   ),
-              ],
-            ),
-          ),
-          gap12,
-        ],
-      );
+                  if (resolvable) ...[gap12, AppButton.secondary(label: 'Résoudre', onPressed: () => _resolve(i))],
+                ],
+              ),
+          ],
+        ),
+      ),
+      gap12,
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {

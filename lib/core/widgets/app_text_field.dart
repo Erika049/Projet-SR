@@ -58,7 +58,7 @@ class _AppTextFieldState extends State<AppTextField> {
       textAlign: widget.textAlign,
       enabled: widget.enabled,
       autofillHints: widget.autofillHints,
-      style: const TextStyle(fontSize: 17, color: AppColors.navy),
+      style: TextStyle(fontSize: 17, color: AppColors.navy),
       decoration: InputDecoration(
         hintText: widget.hint,
         prefixIcon: widget.prefixIcon == null

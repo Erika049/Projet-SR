@@ -47,5 +47,25 @@ void main() {
     await tester.tap(find.text('Mot de passe oublié ?'));
     await tester.pumpAndSettle();
     expect(find.text('Envoyer le code'), findsOneWidget);
+
+    // Étape 1 → 2 : numéro puis code SMS.
+    await tester.enterText(find.byType(TextFormField), '690000001');
+    await tester.tap(find.text('Envoyer le code'));
+    await tester.pumpAndSettle();
+    expect(find.text('Code de vérification'), findsOneWidget);
+
+    // Étape 2 → 3 : le code collé dans la 1re case est validé automatiquement.
+    await tester.enterText(find.byType(TextField).first, '123456');
+    await tester.pumpAndSettle();
+    expect(find.text('Nouveau mot de passe'), findsWidgets);
+
+    // Étape 3 → connexion.
+    final fields = find.byType(TextFormField);
+    await tester.enterText(fields.at(0), 'nouveau1');
+    await tester.enterText(fields.at(1), 'nouveau1');
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pumpAndSettle();
+    expect(find.text('Connexion'), findsOneWidget);
+    expect(find.textContaining('Mot de passe modifié'), findsOneWidget);
   });
 }

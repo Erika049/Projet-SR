@@ -9,31 +9,31 @@ abstract final class AppTheme {
   static const double minTouchTarget = 48;
   static const EdgeInsets pagePadding = EdgeInsets.fromLTRB(20, 16, 20, 24);
 
-  static ThemeData get light {
+  /// Thème clair ou sombre selon [dark]. Bascule aussi la palette [AppColors].
+  static ThemeData build({required bool dark}) {
+    AppColors.useDark(dark);
     final base = ThemeData(
       useMaterial3: true,
+      brightness: dark ? Brightness.dark : Brightness.light,
       colorScheme: ColorScheme.fromSeed(
+        brightness: dark ? Brightness.dark : Brightness.light,
         seedColor: AppColors.navy,
+        onPrimary: AppColors.onNavy,
+        onSurface: AppColors.textPrimary,
         primary: AppColors.navy,
         secondary: AppColors.green,
         error: AppColors.red,
         surface: AppColors.surface,
       ),
       scaffoldBackgroundColor: AppColors.background,
+      canvasColor: AppColors.surface,
     );
 
-    final text = base.textTheme.apply(
-      bodyColor: AppColors.textPrimary,
-      displayColor: AppColors.textPrimary,
-    );
+    final text = base.textTheme.apply(bodyColor: AppColors.textPrimary, displayColor: AppColors.textPrimary);
 
     return base.copyWith(
       textTheme: text.copyWith(
-        headlineMedium: text.headlineMedium?.copyWith(
-          fontSize: 26,
-          fontWeight: FontWeight.w800,
-          color: AppColors.navy,
-        ),
+        headlineMedium: text.headlineMedium?.copyWith(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.navy),
         titleLarge: text.titleLarge?.copyWith(fontSize: 18, fontWeight: FontWeight.w700),
         titleMedium: text.titleMedium?.copyWith(fontSize: 16, fontWeight: FontWeight.w700),
         bodyLarge: text.bodyLarge?.copyWith(fontSize: 15),
@@ -44,7 +44,7 @@ abstract final class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.background,
-        hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 16),
+        hintStyle: TextStyle(color: AppColors.textHint, fontSize: 16),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: _inputBorder(AppColors.border),
         enabledBorder: _inputBorder(AppColors.border),
@@ -64,18 +64,24 @@ abstract final class AppTheme {
           ),
         ),
         iconTheme: WidgetStateProperty.resolveWith(
-          (states) => IconThemeData(
-            color: states.contains(WidgetState.selected) ? AppColors.navy : AppColors.textSecondary,
-          ),
+          (states) =>
+              IconThemeData(color: states.contains(WidgetState.selected) ? AppColors.navy : AppColors.textSecondary),
         ),
       ),
-      dividerTheme: const DividerThemeData(color: AppColors.divider, thickness: 1, space: 1),
+      dialogTheme: DialogThemeData(backgroundColor: AppColors.surface),
+      bottomSheetTheme: BottomSheetThemeData(backgroundColor: AppColors.surface),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? Colors.white : AppColors.textSecondary,
+        ),
+      ),
+      dividerTheme: DividerThemeData(color: AppColors.divider, thickness: 1, space: 1),
       snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
     );
   }
 
   static OutlineInputBorder _inputBorder(Color color, {double width = 1.2}) => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radius),
-        borderSide: BorderSide(color: color, width: width),
-      );
+    borderRadius: BorderRadius.circular(radius),
+    borderSide: BorderSide(color: color, width: width),
+  );
 }

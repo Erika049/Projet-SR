@@ -63,10 +63,11 @@ class AttendanceMockDataSource implements AttendanceRemoteDataSource {
   @override
   Future<AttendanceSummary> getChildAttendance(String childId, DateTime month) async {
     await mockDelay();
-    final records = (_records[childId] ?? const [])
-        .where((r) => r.start.year == month.year && r.start.month == month.month)
-        .toList()
-      ..sort((a, b) => b.start.compareTo(a.start));
+    final records =
+        (_records[childId] ?? const [])
+            .where((r) => r.start.year == month.year && r.start.month == month.month)
+            .toList()
+          ..sort((a, b) => b.start.compareTo(a.start));
     return AttendanceSummary(month: month, records: records);
   }
 

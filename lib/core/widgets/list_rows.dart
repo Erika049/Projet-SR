@@ -50,7 +50,7 @@ class KeyValueRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 15, color: AppColors.textSecondary)),
+        Text(label, style: TextStyle(fontSize: 15, color: AppColors.textSecondary)),
         const SizedBox(width: 16),
         Expanded(
           child: Text(
@@ -97,7 +97,7 @@ class NavRow extends StatelessWidget {
               ),
             if (onTap != null) ...[
               const SizedBox(width: 4),
-              const Icon(Icons.chevron_right_rounded, color: AppColors.textPrimary),
+              Icon(Icons.chevron_right_rounded, color: AppColors.textPrimary),
             ],
           ],
         ),
@@ -120,7 +120,7 @@ class HelpText extends StatelessWidget {
       child: Text(
         text,
         textAlign: center ? TextAlign.center : TextAlign.start,
-        style: const TextStyle(fontSize: 15, color: AppColors.textSecondary),
+        style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
       ),
     );
   }

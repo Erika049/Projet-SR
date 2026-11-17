@@ -20,9 +20,9 @@ class GradeCorrectionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocProvider(
-        create: (_) => sl<CorrectionCubit>(),
-        child: _CorrectionView(sheet: sheet, grade: grade),
-      );
+    create: (_) => sl<CorrectionCubit>(),
+    child: _CorrectionView(sheet: sheet, grade: grade),
+  );
 }
 
 class _CorrectionView extends StatefulWidget {
@@ -70,8 +70,10 @@ class _CorrectionViewState extends State<_CorrectionView> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${grade.studentName} · ${sheet.className}',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                    Text(
+                      '${grade.studentName} · ${sheet.className}',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                    ),
                     const SizedBox(height: 6),
                     Text(
                       '${sheet.subject} · ${sheet.period.label} · coef. ${Formatters.grade(sheet.coefficient, decimals: 0)}',
@@ -90,12 +92,16 @@ class _CorrectionViewState extends State<_CorrectionView> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
           gap12,
-          AppTextField(controller: _reason, hint: 'Motif (ex. erreur de report)', textInputAction: TextInputAction.done),
+          AppTextField(
+            controller: _reason,
+            hint: 'Motif (ex. erreur de report)',
+            textInputAction: TextInputAction.done,
+          ),
           HelpText(
             sheet.openUntil == null
                 ? 'La modification est enregistrée avec son auteur et sa date.'
                 : 'Période ouverte jusqu’au ${DateFormat('d MMMM', 'fr_FR').format(sheet.openUntil!)}. '
-                    'La modification est enregistrée avec son auteur et sa date.',
+                      'La modification est enregistrée avec son auteur et sa date.',
           ),
           AppButton(
             label: 'Enregistrer la correction',

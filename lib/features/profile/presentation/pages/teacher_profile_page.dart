@@ -42,6 +42,8 @@ class TeacherProfilePage extends StatelessWidget {
                 value: pending == 0 ? 'À jour' : '$pending en attente',
                 onTap: () => context.push(Routes.teacherSync),
               ),
+              const NotificationsRow(),
+              const DarkModeRow(),
               const LowDataRow(),
               const LanguageRow(),
             ],

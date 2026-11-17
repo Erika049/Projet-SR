@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme/app_colors.dart';
 import 'pill_selector.dart';
 import 'status_chip.dart';
 
@@ -18,16 +19,19 @@ class StatTile extends StatelessWidget {
     final fg = tone?.foreground;
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: tone?.background ?? Colors.white, borderRadius: cardRadius),
+      decoration: BoxDecoration(color: tone?.background ?? AppColors.surface, borderRadius: cardRadius),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (tone == null) ...[
-            Text(label, style: const TextStyle(fontSize: 15, color: Color(0xFF64748B))),
+            Text(label, style: TextStyle(fontSize: 15, color: AppColors.textSecondary)),
             const SizedBox(height: 8),
             Text(value, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800)),
           ] else ...[
-            Text(value, style: TextStyle(fontSize: 34, fontWeight: FontWeight.w800, color: fg)),
+            Text(
+              value,
+              style: TextStyle(fontSize: 34, fontWeight: FontWeight.w800, color: fg),
+            ),
             const SizedBox(height: 6),
             Text(label, style: TextStyle(fontSize: 17, color: fg)),
           ],

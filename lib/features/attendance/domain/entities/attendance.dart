@@ -39,14 +39,14 @@ class AttendanceRecord extends Equatable {
       : 'Retard · ${minutesLate ?? 0} minutes';
 
   AttendanceRecord withStatus(JustificationStatus s) => AttendanceRecord(
-        id: id,
-        kind: kind,
-        start: start,
-        end: end,
-        subject: subject,
-        minutesLate: minutesLate,
-        status: s,
-      );
+    id: id,
+    kind: kind,
+    start: start,
+    end: end,
+    subject: subject,
+    minutesLate: minutesLate,
+    status: s,
+  );
 
   @override
   List<Object?> get props => [id, kind, start, end, subject, minutesLate, status];
@@ -106,15 +106,8 @@ class RollCall extends Equatable {
 
   int count(RollCallStatus s) => entries.where((e) => e.status == s).length;
 
-  RollCall withEntries(List<RollCallEntry> list) => RollCall(
-        id: id,
-        classId: classId,
-        className: className,
-        subject: subject,
-        start: start,
-        end: end,
-        entries: list,
-      );
+  RollCall withEntries(List<RollCallEntry> list) =>
+      RollCall(id: id, classId: classId, className: className, subject: subject, start: start, end: end, entries: list);
 
   @override
   List<Object?> get props => [id, classId, className, subject, start, end, entries];

@@ -24,8 +24,7 @@ class ChildrenState extends Equatable {
   final String? selectedId;
   final Failure? failure;
 
-  Child? get selected =>
-      children.where((c) => c.id == selectedId).firstOrNull ?? children.firstOrNull;
+  Child? get selected => children.where((c) => c.id == selectedId).firstOrNull ?? children.firstOrNull;
 
   Child? byId(String id) => children.where((c) => c.id == id).firstOrNull;
 
@@ -35,14 +34,13 @@ class ChildrenState extends Equatable {
     List<LinkRequest>? requests,
     String? selectedId,
     Failure? failure,
-  }) =>
-      ChildrenState(
-        status: status ?? this.status,
-        children: children ?? this.children,
-        requests: requests ?? this.requests,
-        selectedId: selectedId ?? this.selectedId,
-        failure: failure,
-      );
+  }) => ChildrenState(
+    status: status ?? this.status,
+    children: children ?? this.children,
+    requests: requests ?? this.requests,
+    selectedId: selectedId ?? this.selectedId,
+    failure: failure,
+  );
 
   @override
   List<Object?> get props => [status, children, requests, selectedId, failure];
@@ -56,12 +54,12 @@ class ChildrenCubit extends Cubit<ChildrenState> {
     required LinkChild linkChild,
     required UnlinkChild unlinkChild,
     required RequestCorrection requestCorrection,
-  })  : _getChildren = getChildren,
-        _getRequests = getLinkRequests,
-        _link = linkChild,
-        _unlink = unlinkChild,
-        _correction = requestCorrection,
-        super(const ChildrenState());
+  }) : _getChildren = getChildren,
+       _getRequests = getLinkRequests,
+       _link = linkChild,
+       _unlink = unlinkChild,
+       _correction = requestCorrection,
+       super(const ChildrenState());
 
   final GetChildren _getChildren;
   final GetLinkRequests _getRequests;
@@ -75,11 +73,13 @@ class ChildrenCubit extends Cubit<ChildrenState> {
     final requests = await _getRequests(const NoParams());
     children.fold(
       (f) => emit(state.copyWith(status: ViewStatus.failure, failure: f)),
-      (list) => emit(state.copyWith(
-        status: ViewStatus.success,
-        children: list,
-        requests: requests.fold((_) => state.requests, (r) => r),
-      )),
+      (list) => emit(
+        state.copyWith(
+          status: ViewStatus.success,
+          children: list,
+          requests: requests.fold((_) => state.requests, (r) => r),
+        ),
+      ),
     );
   }
 

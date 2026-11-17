@@ -19,8 +19,10 @@ class JustifyAbsencePage extends StatelessWidget {
   final AttendanceRecord record;
 
   @override
-  Widget build(BuildContext context) =>
-      BlocProvider(create: (_) => sl<JustifyCubit>(), child: _JustifyView(record: record));
+  Widget build(BuildContext context) => BlocProvider(
+    create: (_) => sl<JustifyCubit>(),
+    child: _JustifyView(record: record),
+  );
 }
 
 class _JustifyView extends StatefulWidget {
@@ -73,8 +75,7 @@ class _JustifyViewState extends State<_JustifyView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (child != null)
-                  Text(child.label, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                if (child != null) Text(child.label, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 6),
                 Text('${r.title} · $when', style: context.text.bodySmall?.copyWith(fontSize: 15)),
               ],
@@ -95,11 +96,8 @@ class _JustifyViewState extends State<_JustifyView> {
           AppButton(
             label: 'Envoyer pour validation',
             loading: state.isSubmitting,
-            onPressed: () => context.read<JustifyCubit>().submit((
-              record: r,
-              reason: _reason.text,
-              attachmentPath: _file?.path,
-            )),
+            onPressed: () =>
+                context.read<JustifyCubit>().submit((record: r, reason: _reason.text, attachmentPath: _file?.path)),
           ),
           const HelpText('Le justificatif sera validé par la vie scolaire. Vous serez notifié.'),
         ],

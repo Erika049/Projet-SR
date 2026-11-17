@@ -8,11 +8,7 @@ class ChildRights extends Equatable {
   final bool canPay;
   final bool canJustify;
 
-  List<String> get labels => [
-        if (canView) 'Voir',
-        if (canPay) 'Payer',
-        if (canJustify) 'Justifier',
-      ];
+  List<String> get labels => [if (canView) 'Voir', if (canPay) 'Payer', if (canJustify) 'Justifier'];
 
   @override
   List<Object?> get props => [canView, canPay, canJustify];

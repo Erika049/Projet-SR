@@ -7,10 +7,12 @@ abstract final class Routes {
   static const register = '/register';
   static const otp = '/register/otp';
   static const forgotPassword = '/forgot-password';
+  static const resetCode = '/forgot-password/code';
+  static const newPassword = '/forgot-password/new';
   static const sessionExpired = '/session-expired';
   static const chooseEstablishment = '/establishment';
 
-  static const publicRoutes = {welcome, login, register, otp, forgotPassword};
+  static const publicRoutes = {welcome, login, register, otp, forgotPassword, resetCode, newPassword};
 
   // Espace Parent
   static const parentHome = '/parent';

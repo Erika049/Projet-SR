@@ -6,12 +6,7 @@ import 'state_views.dart';
 /// Affiche chargement / erreur / contenu selon un [DataState].
 /// Les données déjà chargées restent visibles en cas d'erreur de rafraîchissement.
 class DataStateBuilder<T> extends StatelessWidget {
-  const DataStateBuilder({
-    super.key,
-    required this.state,
-    required this.onRetry,
-    required this.builder,
-  });
+  const DataStateBuilder({super.key, required this.state, required this.onRetry, required this.builder});
 
   final DataState<T> state;
   final VoidCallback onRetry;

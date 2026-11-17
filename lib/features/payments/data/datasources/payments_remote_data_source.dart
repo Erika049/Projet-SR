@@ -4,7 +4,9 @@ import '../../domain/entities/payments.dart';
 abstract interface class PaymentsRemoteDataSource {
   Future<FinancialSituation> getSituation(String childId);
   Future<List<PaymentRecord>> getHistory(String childId);
-  Future<PaymentRecord> declarePayment(String childId, PaymentMode mode, int amount, String? reference);
+
+  /// Envoie la déclaration avec sa preuve (envoi multipart côté API).
+  Future<PaymentRecord> declarePayment(PaymentDeclaration declaration);
   Future<String> downloadReceipt(String paymentId);
 }
 
@@ -57,16 +59,18 @@ class PaymentsMockDataSource implements PaymentsRemoteDataSource {
   }
 
   @override
-  Future<PaymentRecord> declarePayment(String childId, PaymentMode mode, int amount, String? reference) async {
+  Future<PaymentRecord> declarePayment(PaymentDeclaration d) async {
     await mockDelay();
     final record = PaymentRecord(
       id: 'decl-${DateTime.now().millisecondsSinceEpoch}',
-      date: DateTime.now(),
-      amount: amount,
-      mode: mode,
+      date: d.paidAt,
+      amount: d.amount,
+      mode: d.mode,
       status: PaymentStatus.enAttente,
+      reference: d.reference,
+      proofName: d.proof.name,
     );
-    (_history[childId] ??= []).add(record);
+    (_history[d.childId] ??= []).add(record);
     return record;
   }
 

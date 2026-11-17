@@ -26,13 +26,8 @@ class AppButton extends StatelessWidget {
     this.icon,
   });
 
-  const AppButton.secondary({
-    super.key,
-    required this.label,
-    required this.onPressed,
-    this.loading = false,
-    this.icon,
-  }) : variant = AppButtonVariant.secondary;
+  const AppButton.secondary({super.key, required this.label, required this.onPressed, this.loading = false, this.icon})
+    : variant = AppButtonVariant.secondary;
 
   final String label;
   final VoidCallback? onPressed;
@@ -68,10 +63,7 @@ class AppButton extends StatelessWidget {
           ),
         ),
         child: loading
-            ? SizedBox.square(
-                dimension: 22,
-                child: CircularProgressIndicator(strokeWidth: 2.4, color: fg),
-              )
+            ? SizedBox.square(dimension: 22, child: CircularProgressIndicator(strokeWidth: 2.4, color: fg))
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

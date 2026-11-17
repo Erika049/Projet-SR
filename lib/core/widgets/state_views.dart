@@ -42,13 +42,13 @@ class MessageView extends StatelessWidget {
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.navy),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.navy),
             ),
             const SizedBox(height: 10),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 15, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
             ),
             if (actionLabel != null) ...[
               const SizedBox(height: 18),
@@ -59,7 +59,7 @@ class MessageView extends StatelessWidget {
               Text(
                 footnote!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
             ],
           ],
@@ -96,6 +96,5 @@ class LoadingView extends StatelessWidget {
   const LoadingView({super.key});
 
   @override
-  Widget build(BuildContext context) =>
-      const Center(child: CircularProgressIndicator(color: AppColors.navy));
+  Widget build(BuildContext context) => Center(child: CircularProgressIndicator(color: AppColors.navy));
 }

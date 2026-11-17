@@ -61,7 +61,8 @@ class _NotificationsViewState extends State<_NotificationsView> {
                       message: 'Les nouvelles notes, absences et paiements apparaîtront ici dès leur réception.',
                       actionLabel: 'Réessayer la connexion',
                       onAction: cubit.load,
-                      footnote: 'Sans Internet, les alertes urgentes arrivent aussi par SMS. '
+                      footnote:
+                          'Sans Internet, les alertes urgentes arrivent aussi par SMS. '
                           'Vos données déjà chargées restent accessibles.',
                     ),
                   ),
@@ -90,20 +91,11 @@ class _NotificationsViewState extends State<_NotificationsView> {
                 ),
                 gap12,
               ],
-              SectionTitle(
-                'Aujourd’hui',
-                trailing: unread == 0 ? null : '$unread nouvelle${unread > 1 ? 's' : ''}',
-              ),
-              for (final n in items) ...[
-                _NotificationCard(notification: n),
-                gap12,
-              ],
+              SectionTitle('Aujourd’hui', trailing: unread == 0 ? null : '$unread nouvelle${unread > 1 ? 's' : ''}'),
+              for (final n in items) ...[_NotificationCard(notification: n), gap12],
               AppCard(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: NavRow(
-                  'Annonces et convocations',
-                  onTap: () => context.push(Routes.parentAnnouncements),
-                ),
+                child: NavRow('Annonces et convocations', onTap: () => context.push(Routes.parentAnnouncements)),
               ),
               const HelpText('Hors connexion, les alertes déjà reçues restent visibles.'),
             ],
@@ -122,7 +114,9 @@ class _OfflineBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final date = feed.lastUpdate;
     return InfoBanner.offline(
-      date == null ? 'Hors connexion' : 'Hors connexion · dernière mise à jour le ${Formatters.shortDate(date)} à ${Formatters.time(date)}',
+      date == null
+          ? 'Hors connexion'
+          : 'Hors connexion · dernière mise à jour le ${Formatters.shortDate(date)} à ${Formatters.time(date)}',
     );
   }
 }
@@ -143,14 +137,14 @@ class _NotificationCard extends StatelessWidget {
       onTap: n.type == NotificationType.absence || n.type == NotificationType.note
           ? () => context.go(Routes.parentTracking)
           : n.type == NotificationType.echeance
-              ? () => context.go('${Routes.parentTracking}?tab=2')
-              : null,
+          ? () => context.go('${Routes.parentTracking}?tab=2')
+          : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(n.title, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800)),
           const SizedBox(height: 6),
-          Text(n.message, style: const TextStyle(fontSize: 16, color: AppColors.textSecondary)),
+          Text(n.message, style: TextStyle(fontSize: 16, color: AppColors.textSecondary)),
           const SizedBox(height: 10),
           Text(
             '${Formatters.time(n.date)} · ${n.channels.map((c) => c.label).join(' + ')}',

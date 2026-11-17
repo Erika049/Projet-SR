@@ -50,7 +50,10 @@ class _ReportCardsView extends StatelessWidget {
                       Row(
                         children: [
                           Expanded(
-                            child: Text(card.periodLabel, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                            child: Text(
+                              card.periodLabel,
+                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+                            ),
                           ),
                           card.published
                               ? const StatusChip('Publié')

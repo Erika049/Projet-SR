@@ -19,10 +19,10 @@ class RollCallPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocProvider(
-        key: ValueKey(classId),
-        create: (_) => sl<RollCallCubit>()..load(classId),
-        child: _RollCallView(classId: classId),
-      );
+    key: ValueKey(classId),
+    create: (_) => sl<RollCallCubit>()..load(classId),
+    child: _RollCallView(classId: classId),
+  );
 }
 
 class _RollCallView extends StatelessWidget {
@@ -55,7 +55,10 @@ class _RollCallView extends StatelessWidget {
                       )
                     : const SizedBox.shrink(),
               ),
-              Text('${rc.className} · ${rc.subject}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+              Text(
+                '${rc.className} · ${rc.subject}',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+              ),
               Text(
                 '${DateFormat('dd MMM', 'fr_FR').format(rc.start)} · '
                 '${Formatters.slot(rc.start, rc.end).toLowerCase()} · ${rc.entries.length} élèves',
@@ -74,15 +77,18 @@ class _RollCallView extends StatelessWidget {
                 ],
               ),
               gap12,
-              AppTextField(hint: 'Rechercher un élève', onChanged: cubit.search, textInputAction: TextInputAction.search),
+              AppTextField(
+                hint: 'Rechercher un élève',
+                onChanged: cubit.search,
+                textInputAction: TextInputAction.search,
+              ),
               gap12,
               AppCard(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                 child: DividedColumn(
                   spacing: 10,
                   children: [
-                    for (final e in state.visible)
-                      _StudentRow(entry: e, onMark: (s) => cubit.mark(e.studentId, s)),
+                    for (final e in state.visible) _StudentRow(entry: e, onMark: (s) => cubit.mark(e.studentId, s)),
                   ],
                 ),
               ),
@@ -107,7 +113,7 @@ class _StudentRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(child: Text(entry.studentName, style: const TextStyle(fontSize: 17))),
-        for (final (status, label, color) in const [
+        for (final (status, label, color) in [
           (RollCallStatus.present, 'P', AppColors.green),
           (RollCallStatus.absent, 'A', AppColors.red),
           (RollCallStatus.retard, 'R', AppColors.amber),

@@ -48,9 +48,11 @@ class DeclarePaymentCubit extends Cubit<SubmitState> {
   Future<void> submit(DeclarePaymentParams params) async {
     emit(const SubmitState(status: ViewStatus.loading));
     final result = await _declare(params);
-    emit(result.fold(
-      (f) => SubmitState(status: ViewStatus.failure, error: f.message),
-      (_) => const SubmitState(status: ViewStatus.success),
-    ));
+    emit(
+      result.fold(
+        (f) => SubmitState(status: ViewStatus.failure, error: f.message),
+        (_) => const SubmitState(status: ViewStatus.success),
+      ),
+    );
   }
 }
