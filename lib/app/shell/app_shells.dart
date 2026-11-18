@@ -10,8 +10,6 @@ import '../theme/app_colors.dart';
 
 typedef _Tab = ({IconData icon, IconData selected, String label});
 
-/// Barre de navigation inférieure commune.
-///
 /// À la première arrivée dans un espace (première connexion ou fin d'inscription),
 /// demande l'autorisation d'envoyer des notifications push.
 class _ShellScaffold extends StatefulWidget {
