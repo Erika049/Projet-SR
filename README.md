@@ -1,11 +1,11 @@
 # SchoolConnect — application mobile
 
-SchoolConnect met à la disposition des établissements secondaires camerounais une application
-qui centralise et sécurise leur gestion administrative, pédagogique et financière, et rapproche
+**SchoolConnect** est un projet mis à la disposition des établissements secondaires camerounais
+pour centraliser et sécuriser leur gestion administrative, pédagogique et financière, et rapproche
 l'école des familles.
 
-Ce dépôt contient l'**application mobile Flutter** des espaces **Parent** et **Enseignant**.
-Les autres profils (direction, secrétariat, surveillance, économat) utilisent l'application web.
+Ce dépôt contient l'**application mobile** des espaces **Parent** et **Enseignant**.
+Les autres profils (direction, secrétariat, surveillance, économat/comptabilité) utilisent l'application web.
 
 ## Fonctionnalités
 
