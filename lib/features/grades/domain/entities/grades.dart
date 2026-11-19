@@ -11,7 +11,7 @@ class Period extends Equatable {
   final PeriodKind kind;
   final String year; // « 2026–2027 »
 
-  String get fullLabel => '$label · $year';
+  String get fullLabel => year.isEmpty ? label : '$label · $year';
 
   @override
   List<Object?> get props => [id, label, kind, year];

@@ -90,7 +90,7 @@ class _RollCallView extends StatelessWidget {
                 ),
               ),
               HelpText('${state.visible.length} élèves affichés sur ${rc.entries.length}'),
-              AppButton(label: 'Enregistrer l’appel', loading: state.saving, onPressed: cubit.save),
+              AppButton(label: 'Soumettre la fiche d’appel', loading: state.saving, onPressed: cubit.save),
             ],
           ),
         ),

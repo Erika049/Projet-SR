@@ -1,3 +1,4 @@
+import '../../../../core/errors/exceptions.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/entities/establishment.dart';
 
@@ -25,6 +26,31 @@ class UserModel extends AppUser {
     langue: json['langue'] as String? ?? 'fr',
     specialite: json['specialite'] as String?,
   );
+
+  /// `UserView` du backend : `{id, nom, prenom, telephone, email, langue, roles: [{role, etablissementId}]}`.
+  ///
+  /// Le rôle ENSEIGNANT donne l'espace Enseignant. Un compte sans rôle d'établissement
+  /// est un parent. Les autres rôles (direction, secrétariat…) relèvent de l'application web.
+  factory UserModel.fromApi(Map<String, dynamic> json) {
+    final roles = [for (final r in (json['roles'] as List? ?? const [])) (r as Map)['role'] as String?];
+    final UserRole role;
+    if (roles.contains('ENSEIGNANT')) {
+      role = UserRole.enseignant;
+    } else if (roles.whereType<String>().isEmpty) {
+      role = UserRole.parent;
+    } else {
+      throw const AuthException('Ce compte est réservé à l’application web SchoolConnect.');
+    }
+    return UserModel(
+      id: json['id'] as String,
+      nom: json['nom'] as String? ?? '',
+      prenom: json['prenom'] as String? ?? '',
+      role: role,
+      telephone: json['telephone'] as String?,
+      email: json['email'] as String?,
+      langue: json['langue'] as String? ?? 'fr',
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     'id': id,

@@ -82,7 +82,10 @@ class _RecordTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final when = record.end == null
+    final allDay = record.end == null && record.start.hour == 0 && record.start.minute == 0;
+    final when = allDay
+        ? '${Formatters.dayMonthUpper(record.start)} · journée'
+        : record.end == null
         ? '${Formatters.dayMonthUpper(record.start)} · ${Formatters.hour(record.start)}'
         : '${Formatters.dayMonthUpper(record.start)} · ${Formatters.slot(record.start, record.end!)}';
     final tone = switch (record.status) {

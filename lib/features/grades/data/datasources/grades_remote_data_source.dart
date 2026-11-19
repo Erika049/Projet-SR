@@ -1,5 +1,7 @@
 import '../../../../core/errors/exceptions.dart';
-import '../../../../core/network/mock_delay.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/network/api_json.dart';
+import '../../../../core/network/teacher_api_context.dart';
 import '../../domain/entities/grades.dart';
 
 abstract interface class GradesRemoteDataSource {
@@ -15,109 +17,168 @@ abstract interface class GradesRemoteDataSource {
   Future<ClassStats> getClassStats(String classId);
 }
 
-/// Données de démonstration (maquettes : Amina 3e A, M. Kamga).
-class GradesMockDataSource implements GradesRemoteDataSource {
-  static const _year = '2026–2027';
-  static const _periods = [
-    Period(id: 'seq1', label: 'Séquence 1', kind: PeriodKind.sequence, year: _year),
-    Period(id: 'seq2', label: 'Séquence 2', kind: PeriodKind.sequence, year: _year),
-    Period(id: 'tri1', label: 'Trimestre 1', kind: PeriodKind.trimestre, year: _year),
-  ];
+/// Backend SchoolConnect.
+///
+/// - Parent : `GET /mes-enfants/{eleveId}/notes` (moyenne et notes par matière).
+/// - Enseignant : `POST /etablissements/{etab}/classes/{classe}/matieres/{matiere}/evaluations`
+///   à la soumission, `PATCH …/evaluations/{id}` pour corriger. Les brouillons restent sur le téléphone.
+class GradesApiDataSource implements GradesRemoteDataSource {
+  GradesApiDataSource(this._api, this._teacher);
 
-  static const classStudents = {
-    '3eA': ['Amina Etame', 'Boris Fotso', 'Carine Mbarga', 'David Njoya', 'Esther Ngo', 'Franck Tchoua'],
-    '4eB': ['Gaëlle Abena', 'Hervé Nana', 'Irène Mballa', 'Jules Onana'],
-    '2ndeC': ['Kevin Ateba', 'Laure Bella', 'Marc Essomba', 'Nadia Fouda'],
-  };
+  final ApiClient _api;
+  final TeacherApiContext _teacher;
 
-  static String className(String classId) => {'3eA': '3e A', '4eB': '4e B', '2ndeC': '2nde C'}[classId] ?? classId;
-
+  /// Feuilles ouvertes pendant la session (classe → feuille), avec l'id d'évaluation une fois envoyée.
   final Map<String, GradeSheet> _sheets = {};
-  final Map<String, List<Appreciation>> _appreciations = {};
+
+  /// Vue « toutes les notes de l'année » (sans filtre de période).
+  static const _allPeriods = Period(id: '', label: 'Toute l’année', kind: PeriodKind.sequence, year: '');
+
+  /// Périodes de l'enfant, gardées pour retrouver le libellé de la période affichée.
+  final Map<String, Period> _periods = {};
 
   @override
   Future<List<Period>> getPeriods(String childId) async {
-    await mockDelay(200);
-    return _periods;
+    final raw = ApiJson.list(await _api.get('/mes-enfants/$childId/periodes'));
+    final now = DateTime.now();
+    final list = <Period>[];
+    Period? current;
+    for (final p in raw) {
+      final period = Period(
+        id: p['id'] as String,
+        label: TeacherApiContext.periodLabel(p),
+        kind: p['type'] == 'SEQUENCE' ? PeriodKind.sequence : PeriodKind.trimestre,
+        year: '',
+      );
+      if (p['type'] == 'ANNUELLE') continue;
+      _periods[period.id] = period;
+      list.add(period);
+      final start = ApiJson.parseDate(p['dateDebut']);
+      final end = ApiJson.parseDate(p['dateFin']);
+      if (p['type'] == 'SEQUENCE' && start != null && end != null && !now.isBefore(start) && !now.isAfter(end)) {
+        current = period;
+      }
+    }
+    // Séquence en cours en premier (vue par défaut), puis les autres, puis « Toute l'année ».
+    if (current != null) {
+      list
+        ..remove(current)
+        ..insert(0, current);
+    }
+    return [...list, _allPeriods];
   }
 
   @override
   Future<GradesReport> getChildGrades(String childId, String periodId) async {
-    await mockDelay();
-    final period = _periods.firstWhere((p) => p.id == periodId);
-    if (childId == 'eleve-junior' || periodId != 'seq1') {
-      // Notes non encore publiées.
-      return GradesReport(period: period, subjects: const []);
-    }
+    final rows = ApiJson.list(
+      await _api.get('/mes-enfants/$childId/notes', query: {if (periodId.isNotEmpty) 'periodeId': periodId}),
+    );
     return GradesReport(
-      period: period,
-      rank: 5,
-      classSize: 52,
-      subjects: const [
-        SubjectGrade(subject: 'Mathématiques', coefficient: 4, grade: 16),
-        SubjectGrade(subject: 'Français', coefficient: 4, grade: 14),
-        SubjectGrade(subject: 'Anglais', coefficient: 3, grade: 13.5),
+      period: _periods[periodId] ?? _allPeriods,
+      subjects: [
+        for (final (i, m) in rows.indexed)
+          SubjectGrade(
+            subject: m['matiereNom'] as String? ?? 'Matière ${i + 1}',
+            coefficient: ApiJson.toDouble(m['coefficient']) ?? 1,
+            grade: ApiJson.toDouble(m['moyenne']),
+          ),
       ],
     );
   }
 
   @override
-  Future<List<ReportCard>> getReportCards(String childId) async {
-    await mockDelay();
-    final amina = childId == 'eleve-amina';
-    return [
-      ReportCard(
-        id: '$childId-seq1',
-        periodLabel: 'Séquence 1',
-        published: amina,
-        fileUrl: amina ? 'https://example.cm/b1.pdf' : null,
-      ),
-      ReportCard(id: '$childId-seq2', periodLabel: 'Séquence 2', published: false),
-      ReportCard(id: '$childId-tri1', periodLabel: 'Trimestre 1', published: false),
-    ];
-  }
+  Future<List<ReportCard>> getReportCards(String childId) => notAvailableOnServer('Les bulletins');
 
   @override
-  Future<String> downloadReportCard(String reportCardId) async {
-    await mockDelay(700);
-    return 'bulletin_$reportCardId.pdf';
-  }
+  Future<String> downloadReportCard(String reportCardId) => notAvailableOnServer('Le téléchargement des bulletins');
 
   @override
   Future<GradeSheet> getGradeSheet(String classId) async {
-    await mockDelay();
-    return _sheets[classId] ??
-        GradeSheet(
-          evaluationId: 'eval-$classId-ds1',
-          classId: classId,
-          className: className(classId),
-          subject: 'Mathématiques',
-          period: _periods.first,
-          evaluationLabel: 'Devoir surveillé',
-          coefficient: 4,
-          openUntil: DateTime(2026, 11, 20, 23, 59),
-          grades: [
-            for (final (i, name) in (classStudents[classId] ?? const []).indexed)
-              StudentGrade(studentId: '$classId-$i', studentName: name),
-          ],
-        );
+    final a = await _teacher.resolve(classId);
+    final cached = _sheets[a.classId];
+    if (cached != null) return cached;
+    final period = await _teacher.currentPeriod(a.schoolYearId);
+    final students = await _teacher.students(a);
+    if (students.isEmpty) throw const ServerException('Aucun élève n’est inscrit dans cette classe.');
+    return _sheets[a.classId] = GradeSheet(
+      evaluationId: '',
+      classId: a.classId,
+      className: a.className,
+      subject: a.subject,
+      period: Period(
+        id: period.id,
+        label: period.label,
+        kind: period.isSequence ? PeriodKind.sequence : PeriodKind.trimestre,
+        year: '',
+      ),
+      evaluationLabel: 'Devoir surveillé',
+      coefficient: 1,
+      grades: [for (final s in students) StudentGrade(studentId: s.id, studentName: s.name)],
+    );
   }
+
+  List<Map<String, dynamic>> _notes(Iterable<StudentGrade> grades) => [
+    for (final g in grades.where((g) => g.isFilled))
+      {'eleveId': g.studentId, if (!g.absent) 'valeur': g.value, 'absent': g.absent},
+  ];
 
   @override
   Future<GradeSheet> saveGradeSheet(GradeSheet sheet, {required bool submit}) async {
-    await mockDelay();
-    final saved = sheet.copyWith(status: submit ? GradeSheetStatus.soumis : GradeSheetStatus.brouillon);
-    _sheets[sheet.classId] = saved;
-    return saved;
+    if (!submit) {
+      // Brouillon : conservé sur le téléphone, envoyé à la soumission.
+      return _sheets[sheet.classId] = sheet.copyWith(status: GradeSheetStatus.brouillon);
+    }
+    final a = await _teacher.resolve(sheet.classId);
+    final base = '/etablissements/${_teacher.establishmentId}/classes/${a.classId}/matieres/${a.subjectId}/evaluations';
+    var evaluationId = sheet.evaluationId;
+    if (evaluationId.isEmpty) {
+      final created = ApiJson.map(
+        await _api.post(
+          base,
+          data: {
+            'periodeId': sheet.period.id,
+            'nom': sheet.evaluationLabel,
+            'coefficient': sheet.coefficient,
+            'bareme': sheet.scale,
+            'date': ApiJson.date(DateTime.now()),
+            'notes': _notes(sheet.grades),
+          },
+        ),
+      );
+      evaluationId = created['id'] as String? ?? '';
+    } else {
+      await _api.patch('$base/$evaluationId', data: {'notes': _notes(sheet.grades)});
+    }
+    final saved = GradeSheet(
+      evaluationId: evaluationId,
+      classId: sheet.classId,
+      className: sheet.className,
+      subject: sheet.subject,
+      period: sheet.period,
+      evaluationLabel: sheet.evaluationLabel,
+      coefficient: sheet.coefficient,
+      scale: sheet.scale,
+      status: GradeSheetStatus.soumis,
+      openUntil: sheet.openUntil,
+      grades: sheet.grades,
+    );
+    return _sheets[sheet.classId] = saved;
   }
 
   @override
   Future<void> correctGrade(String evaluationId, String studentId, double value, String reason) async {
-    await mockDelay();
-    final classId = studentId.split('-').first;
-    final sheet = _sheets[classId];
-    if (sheet == null) throw const ServerException('Évaluation introuvable.');
-    _sheets[classId] = sheet.copyWith(
+    final sheet = _sheets.values.where((s) => s.evaluationId == evaluationId && evaluationId.isNotEmpty).firstOrNull;
+    if (sheet == null) throw const ServerException('Soumettez d’abord la feuille de notes avant de la corriger.');
+    final a = await _teacher.resolve(sheet.classId);
+    await _api.patch(
+      '/etablissements/${_teacher.establishmentId}/classes/${a.classId}/matieres/${a.subjectId}/evaluations/$evaluationId',
+      data: {
+        'notes': [
+          {'eleveId': studentId, 'valeur': value, 'absent': false},
+        ],
+      },
+    );
+    _sheets[sheet.classId] = sheet.copyWith(
       grades: [
         for (final g in sheet.grades)
           g.studentId == studentId ? StudentGrade(studentId: g.studentId, studentName: g.studentName, value: value) : g,
@@ -126,39 +187,12 @@ class GradesMockDataSource implements GradesRemoteDataSource {
   }
 
   @override
-  Future<List<Appreciation>> getAppreciations(String classId) async {
-    await mockDelay();
-    return _appreciations[classId] ??
-        [
-          for (final (i, name) in (classStudents[classId] ?? const []).indexed)
-            Appreciation(
-              studentId: '$classId-$i',
-              studentName: name,
-              text: switch (i) {
-                0 => 'Très bon travail, continuez.',
-                1 => 'Peut mieux faire.',
-                _ => '',
-              },
-            ),
-        ];
-  }
+  Future<List<Appreciation>> getAppreciations(String classId) => notAvailableOnServer('Les appréciations');
 
   @override
-  Future<void> saveAppreciations(String classId, List<Appreciation> items) async {
-    await mockDelay();
-    _appreciations[classId] = items;
-  }
+  Future<void> saveAppreciations(String classId, List<Appreciation> items) =>
+      notAvailableOnServer('Les appréciations');
 
   @override
-  Future<ClassStats> getClassStats(String classId) async {
-    await mockDelay();
-    return ClassStats(
-      className: className(classId),
-      periodLabel: 'Séquence 1',
-      average: 11.9,
-      highest: 17.5,
-      lowest: 4,
-      passRate: 0.71,
-    );
-  }
+  Future<ClassStats> getClassStats(String classId) => notAvailableOnServer('Les statistiques de classe');
 }

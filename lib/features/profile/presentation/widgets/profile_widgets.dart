@@ -32,22 +32,6 @@ class IdentityCard extends StatelessWidget {
   }
 }
 
-/// « Langue  Français · EN » — bascule FR/EN.
-class LanguageRow extends StatelessWidget {
-  const LanguageRow({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final settings = context.watch<SettingsCubit>();
-    return NavRow(
-      'Langue',
-      value: settings.isFrench ? 'Français · EN' : 'English · FR',
-      valueColor: AppColors.green,
-      onTap: () => settings.setLocale(settings.isFrench ? 'en' : 'fr'),
-    );
-  }
-}
-
 /// Ligne de réglage avec interrupteur : « Libellé   Activé  [◉] ».
 class SettingSwitchRow extends StatelessWidget {
   const SettingSwitchRow({

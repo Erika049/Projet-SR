@@ -43,7 +43,6 @@ class TeacherProfilePage extends StatelessWidget {
               ),
               const NotificationsRow(),
               const LowDataRow(),
-              const LanguageRow(),
             ],
           ),
         ),

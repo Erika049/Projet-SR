@@ -43,12 +43,12 @@ class SettingsState extends Equatable {
   List<Object?> get props => [locale, lowDataMode, notificationsWanted, notificationsAllowed];
 }
 
-/// Préférences de l'appareil : langue, notifications, mode faible consommation.
+/// Préférences de l'appareil : notifications, mode faible consommation.
+/// L'application est uniquement en français.
 class SettingsCubit extends Cubit<SettingsState> {
   SettingsCubit(this._storage, this._permissions)
     : super(
         SettingsState(
-          locale: Locale(_storage.getString(LocalStorage.keyLocale) ?? 'fr'),
           lowDataMode: _storage.getBool(LocalStorage.keyLowData) ?? true,
           notificationsWanted: _storage.getBool(LocalStorage.keyNotifications) ?? true,
         ),
@@ -57,15 +57,8 @@ class SettingsCubit extends Cubit<SettingsState> {
   final LocalStorage _storage;
   final AppPermissions _permissions;
 
-  bool get isFrench => state.locale.languageCode == 'fr';
-
   /// La demande d'autorisation des notifications doit-elle encore être présentée ?
   bool get shouldPromptNotifications => !(_storage.getBool(LocalStorage.keyNotificationsPrompted) ?? false);
-
-  Future<void> setLocale(String code) async {
-    await _storage.setString(LocalStorage.keyLocale, code);
-    emit(state.copyWith(locale: Locale(code)));
-  }
 
   Future<void> setLowDataMode(bool value) async {
     await _storage.setBool(LocalStorage.keyLowData, value);

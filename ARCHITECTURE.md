@@ -37,10 +37,10 @@ lib/
 │   ├── shell/                # Barres d'onglets Parent / Enseignant, page « Suivi »
 │   └── theme/                # Couleurs (Marine, Vert, Ambre, Rouge) et ThemeData
 ├── core/                     # Code partagé, sans logique métier spécifique
-│   ├── constants/            # URL d'API, USE_MOCK, constantes
+│   ├── constants/            # URL d'API, constantes
 │   ├── errors/               # Exceptions (data) et Failures (domain)
 │   ├── extensions/           # context.showMessage, context.text…
-│   ├── network/              # ApiClient (dio), NetworkInfo, mockDelay
+│   ├── network/              # ApiClient (dio), ApiJson, TeacherApiContext, NetworkInfo, mockDelay
 │   ├── permissions/          # AppPermissions : notifications et accès aux fichiers
 │   ├── storage/              # LocalStorage, SyncQueue (opérations hors connexion)
 │   ├── usecases/             # Contrat UseCase<T, Params>
@@ -119,7 +119,7 @@ Les couleurs sont lues dans `AppColors` (Marine `navy`, Vert `green`, Ambre `amb
   n'existe que pour la présence de l'enseignant, `StaffStatus`.)
 - **Déclaration de paiement** (`DeclarePayment`) : montant > 0 et ≤ solde restant, date de paiement
   obligatoire et non future, référence obligatoire, preuve obligatoire (JPG, PNG ou PDF, 5 Mo max).
-- **Mot de passe** : 6 caractères minimum ; le nouveau mot de passe doit être saisi deux fois.
+- **Mot de passe** : 8 caractères minimum à la création (règle du serveur) ; le nouveau mot de passe doit être saisi deux fois.
 - **Mot de passe oublié** : l'étape 1 répond de la même façon que le numéro soit inscrit ou non,
   pour ne pas révéler qui est inscrit.
 
@@ -136,41 +136,86 @@ presentation  ──►  domain  ◄──  data
 - Exceptions assumées : `SessionCubit` (auth) et `ChildrenCubit` (children) sont des états globaux
   partagés par les espaces ; `app/` assemble librement les features (ex. page « Suivi »).
 
-## Données fictives et branchement du backend
+## Backend
 
-Tant que le backend n'existe pas, chaque feature utilise une `XxxMockDataSource` fidèle aux maquettes.
-Pour brancher l'API : écrire `XxxApiDataSource implements XxxRemoteDataSource` (exemple fourni :
-`AuthApiDataSource`) puis l'enregistrer dans `app/di/injection.dart`.
-`flutter run --dart-define=USE_MOCK=false --dart-define=API_BASE_URL=https://…`
+L'application est branchée par défaut sur le **backend SchoolConnect** :
 
-API d'authentification attendue par `AuthApiDataSource` (chemins à aligner avec le backend) :
+- URL : `https://school-connect-backend-production-d24122f4.up.railway.app/api/v1`
+  (Swagger : `…/swagger-ui/index.html`), modifiable avec `--dart-define=API_BASE_URL=…`.
+- Authentification par jeton JWT (`Authorization: Bearer …`), ajouté par `ApiClient`.
+- Erreurs du serveur `{status, error, details}` affichées en français à l'écran.
+  Un 401 **sans** jeton (mauvais identifiants) n'est pas une session expirée.
 
-| Appel                         | Corps                                   | Réponse                              |
-|-------------------------------|-----------------------------------------|--------------------------------------|
-| `POST /auth/login`            | `identifiant`, `mot_de_passe`           | `access_token`, `utilisateur`        |
-| `POST /auth/register`         | `nom_complet`, `telephone`, `email`, `mot_de_passe` | — (envoie le code SMS)   |
-| `POST /auth/otp/verify`       | `telephone`, `code`                     | `access_token`, `utilisateur`        |
-| `POST /auth/otp/resend`       | `telephone`                             | —                                    |
-| `POST /auth/password/forgot`  | `identifiant`                           | — (envoie le code SMS)               |
-| `POST /auth/password/verify`  | `telephone`, `code`                     | `reset_token` (usage unique)         |
-| `POST /auth/password/reset`   | `reset_token`, `mot_de_passe`           | —                                    |
-| `GET /me/etablissements`      | —                                       | liste des établissements             |
+Chaque feature a une source de données `XxxApiDataSource` (backend), enregistrée dans `app/di/injection.dart`.
+L'application ne contient aucune donnée fictive. Seul le test d'interface `test/features/auth/auth_flow_test.dart`
+remplace l'authentification par `test/support/auth_fake_data_source.dart` pour tourner sans serveur.
 
-L'appel envoie pour chaque élève `{inscription_id, statut}` avec `statut` = `present` ou `absent`.
+`core/network/teacher_api_context.dart` regroupe ce que partagent l'emploi du temps, l'appel
+et les notes de l'enseignant : établissement choisi, affectations (classe + matière), élèves
+de la classe, période de saisie ouverte.
 
-Comptes de test (connexion par **téléphone + mot de passe** uniquement, code OTP `123456`) :
+### Correspondance avec l'API
 
-| Profil     | Téléphone   | Mot de passe |
-|------------|-------------|--------------|
-| Parent     | 690000001   | parent123    |
-| Parent     | 690000002   | parent123    |
-| Enseignant | 670000001   | prof123      |
-| Enseignant | 670000002   | prof123      |
+| Fonction de l'application                 | Route du backend                                                        |
+|-------------------------------------------|-------------------------------------------------------------------------|
+| Connexion                                 | `POST /auth/login` `{identifiant, motDePasse}`                           |
+| Inscription d'un parent (session ouverte directement, sans code SMS) | `POST /auth/register` `{prenom, nom, telephone, email, motDePasse, langue}` |
+| Mot de passe oublié (code SMS → nouveau mot de passe) | `POST /auth/mot-de-passe-oublie`, `…/verifier` → jeton, `…/reinitialiser` |
+| Rôle et établissements de l'enseignant    | `GET /auth/me`, `GET /etablissements/{id}`                               |
+| Classes de l'enseignant                   | `GET /etablissements/{etab}/mes-affectations`, `…/classes?anneeScolaireId`, `…/matieres` |
+| Élèves d'une classe                       | `GET /etablissements/{etab}/classes/{classe}/eleves`                     |
+| Emploi du temps de l'enseignant           | `GET /etablissements/{etab}/mon-emploi-du-temps`                         |
+| Appel (présent / absent), fiche soumise au surveillant général | `GET` / `POST /etablissements/{etab}/classes/{classe}/appels`, `PATCH …/appels/{id}` |
+| Saisie et correction des notes            | `POST …/classes/{classe}/matieres/{matiere}/evaluations`, `PATCH …/evaluations/{id}` |
+| Période de saisie                         | `GET /etablissements/{etab}/annees-scolaires/{annee}/periodes`           |
+| Enfants du parent, liaison par code, retrait | `GET /mes-enfants`, `GET\|POST /mes-enfants/liaisons`, `DELETE /mes-enfants/{id}` |
+| Périodes de l'enfant                      | `GET /mes-enfants/{eleveId}/periodes`                                    |
+| Absences d'un enfant (avec état du justificatif) | `GET /mes-enfants/{eleveId}/presences?from&to`                    |
+| Justifier une absence                     | `POST /mes-enfants/{eleveId}/justificatifs` (multipart : dateDebut, motif, piece) |
+| Notes d'un enfant (nom et coefficient des matières) | `GET /mes-enfants/{eleveId}/notes?periodeId`                    |
+| Situation financière, paiements           | `GET /mes-enfants/{eleveId}/situation-financiere`                        |
+| Déclarer un paiement, déclarations en attente | `POST\|GET /mes-enfants/{eleveId}/declarations-paiement`             |
+| Reçu PDF (enregistré où le parent choisit) | `GET /mes-enfants/{eleveId}/paiements/{id}/recu`                        |
+| Notifications, « tout marquer comme lu »  | `GET /mes-notifications`, `PATCH /mes-notifications/lues`                |
+| Annonces                                  | notifications de type `MESSAGE_ETABLISSEMENT`                            |
+| Accueil parent                            | moyenne et absences à justifier par enfant + notifications non lues      |
 
-Détails et scénarios : `COMPTES_DE_TEST.md`.
+Règles appliquées pour le serveur :
+- Mot de passe d'au moins **8 caractères** à l'inscription ; prénom **et** nom obligatoires.
+- Numéro de téléphone envoyé sous la forme `+2376XXXXXXXX` (inscription, connexion, mot de passe oublié).
+- Un compte avec le rôle `ENSEIGNANT` ouvre l'espace Enseignant ; un compte sans rôle
+  d'établissement est un parent ; les rôles administratifs seuls sont refusés (application web).
+- **Appel** : la fiche soumise par l'enseignant part chez le surveillant général, qui la vérifie sur le web
+  puis prévient les parents des absents. Le parent ne voit l'absence qu'à ce moment-là.
+- Code de liaison : 8 lettres ou chiffres remis par le secrétariat ; la demande est validée par le secrétariat.
+- Brouillon de notes conservé sur le téléphone ; l'évaluation est créée sur le serveur à la soumission.
 
-Code de liaison d'un enfant : `SC-4F7K-92`.
+### Fonctions encore sans route sur le backend
 
+Ces écrans affichent « … : pas encore disponible sur le serveur SchoolConnect. »
+
+| Fonction                                   | Route à prévoir côté backend (proposition)                     |
+|--------------------------------------------|----------------------------------------------------------------|
+| Signaler une erreur, demande de correction | `POST /mes-enfants/{eleveId}/signalements`                     |
+| Bulletins (liste, PDF)                     | `GET /mes-enfants/{eleveId}/bulletins`                         |
+| Appréciations, statistiques de classe      | routes dédiées                                                 |
+| Présence de l'enseignant (« Ma présence ») | routes dédiées                                                 |
+| Préférences d'alertes                      | conservées sur le téléphone en attendant                       |
+| Notifications push                         | Firebase Cloud Messaging (à prévoir : jeton de l'appareil + envoi par le serveur) |
+
+### Serveur local
+
+Backend lancé sur le PC (voir `docs/INTEGRATION-MOBILE-WEB.md` du dépôt backend) :
+
+```bash
+# Émulateur Android (10.0.2.2 = le PC)
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080/api/v1
+# Téléphone sur le même Wi-Fi : adresse IP du PC
+flutter run --dart-define=API_BASE_URL=http://192.168.x.x:8080/api/v1
+```
+
+Le HTTP non chiffré n'est autorisé que dans les versions de débogage (`android/app/src/debug/AndroidManifest.xml`).
+Comptes du jeu de données local : `COMPTES_DE_TEST.md`.
 ## Hors connexion
 
 - L'appel et les brouillons de notes sont placés dans la `SyncQueue` quand `NetworkInfo` est hors ligne,
@@ -186,7 +231,7 @@ Code de liaison d'un enfant : `SC-4F7K-92`.
 | Model / mapper       | `child_model.dart`                   | `ChildModel`                 |
 | Repository (contrat) | `children_repository.dart`           | `ChildrenRepository`         |
 | Repository (impl.)   | `children_repository_impl.dart`      | `ChildrenRepositoryImpl`     |
-| Datasource           | `children_remote_data_source.dart`   | `ChildrenMockDataSource`     |
+| Datasource           | `children_remote_data_source.dart`   | `ChildrenApiDataSource`      |
 | Use cases            | `children_usecases.dart`             | `GetChildren`, `LinkChild`…  |
 | Cubit                | `children_cubit.dart`                | `ChildrenCubit`              |
 | Page                 | `link_child_page.dart`               | `LinkChildPage`              |

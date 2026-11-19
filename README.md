@@ -54,22 +54,27 @@ flutter devices                      # repérer l'identifiant du téléphone
 flutter run -d <identifiant>         # ex. flutter run -d 26031JEGR02593 (Pixel 6a)
 ```
 
-Par défaut l'application tourne avec des **données fictives** (`USE_MOCK=true`) : aucun serveur
-n'est nécessaire. Pour brancher l'API réelle :
+Par défaut l'application est branchée sur le **backend SchoolConnect**
+(`https://school-connect-backend-production-d24122f4.up.railway.app`, Swagger : `/swagger-ui/index.html`).
 
 ```bash
-flutter run --dart-define=USE_MOCK=false --dart-define=API_BASE_URL=https://…
+flutter run -d <identifiant> --dart-define=API_BASE_URL=http://10.0.2.2:8080/api/v1  # serveur local (émulateur)
+flutter run -d <identifiant> --dart-define=API_BASE_URL=https://…/api/v1   # autre serveur
 ```
+
+Toutes les données viennent du serveur : l'application ne contient aucune donnée fictive.
+Ce qui attend encore une route du backend : voir [ARCHITECTURE.md](ARCHITECTURE.md#backend).
 
 ## Comptes de test
 
+Comptes du jeu de données local (script `scripts/donnees-test-local.ps1` du backend) :
+
 | Profil     | Téléphone   | Mot de passe |
 |------------|-------------|--------------|
-| Parent     | 690000001   | parent123    |
-| Enseignant | 670000001   | prof123      |
+| Parent     | 690000001   | parent2026   |
+| Enseignant | 670000001   | prof2026     |
 
-Code SMS (inscription, mot de passe oublié) : `123456`.
-Tous les comptes et scénarios : [COMPTES_DE_TEST.md](COMPTES_DE_TEST.md).
+Tous les comptes, les codes de liaison et les scénarios : [COMPTES_DE_TEST.md](COMPTES_DE_TEST.md).
 
 ## Commandes utiles
 

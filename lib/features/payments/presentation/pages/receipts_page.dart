@@ -23,6 +23,7 @@ class ReceiptsPage extends StatelessWidget {
           final state = context.watch<PaymentHistoryCubit>().state;
           return AppPage(
             title: 'Reçus et historique',
+            onRefresh: () => context.read<PaymentHistoryCubit>().load(childId),
             body: DataStateBuilder(
               state: state,
               onRetry: () => context.read<PaymentHistoryCubit>().load(childId),
@@ -34,6 +35,7 @@ class ReceiptsPage extends StatelessWidget {
                     )
                   : ListView.separated(
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                      physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: list.length,
                       separatorBuilder: (_, _) => gap12,
                       itemBuilder: (context, i) => _PaymentCard(payment: list[i]),

@@ -53,23 +53,19 @@ class _SchoolConnectAppState extends State<SchoolConnectApp> with WidgetsBinding
         BlocProvider.value(value: _session),
         BlocProvider.value(value: _settings),
       ],
-      child: BlocBuilder<SettingsCubit, SettingsState>(
-        buildWhen: (a, b) => a.locale != b.locale,
-        builder: (context, settings) {
-          return AnnotatedRegion<SystemUiOverlayStyle>(
-            value: SystemUiOverlayStyle.dark,
-            child: MaterialApp.router(
-              title: AppConstants.appName,
-              debugShowCheckedModeBanner: false,
-              theme: _theme,
-              themeMode: ThemeMode.light,
-              routerConfig: _router,
-              locale: settings.locale,
-              supportedLocales: const [Locale('fr'), Locale('en')],
-              localizationsDelegates: GlobalMaterialLocalizations.delegates,
-            ),
-          );
-        },
+      // Application uniquement en français.
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.dark,
+        child: MaterialApp.router(
+          title: AppConstants.appName,
+          debugShowCheckedModeBanner: false,
+          theme: _theme,
+          themeMode: ThemeMode.light,
+          routerConfig: _router,
+          locale: const Locale('fr'),
+          supportedLocales: const [Locale('fr')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+        ),
       ),
     );
   }

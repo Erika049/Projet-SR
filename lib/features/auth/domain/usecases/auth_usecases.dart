@@ -16,12 +16,12 @@ class Login implements UseCase<AppUser, ({String identifier, String password})> 
 
 typedef RegisterParams = ({String fullName, String phone, String? email, String password});
 
-class RegisterParent implements UseCase<void, RegisterParams> {
+class RegisterParent implements UseCase<AppUser?, RegisterParams> {
   const RegisterParent(this._repo);
   final AuthRepository _repo;
 
   @override
-  Future<Result<void>> call(RegisterParams p) => _repo.registerParent(
+  Future<Result<AppUser?>> call(RegisterParams p) => _repo.registerParent(
     fullName: p.fullName.trim(),
     phone: p.phone.trim(),
     email: (p.email?.trim().isEmpty ?? true) ? null : p.email!.trim(),
@@ -64,12 +64,12 @@ class VerifyResetCode implements UseCase<String, ({String phone, String code})> 
 
 typedef ResetPasswordParams = ({String resetToken, String password, String confirmation});
 
-/// Choix du nouveau mot de passe : au moins 6 caractères, saisi deux fois à l'identique.
+/// Choix du nouveau mot de passe : au moins 8 caractères (règle du serveur), saisi deux fois à l'identique.
 class ResetPassword implements UseCase<void, ResetPasswordParams> {
   const ResetPassword(this._repo);
   final AuthRepository _repo;
 
-  static const minLength = 6;
+  static const minLength = 8;
 
   @override
   Future<Result<void>> call(ResetPasswordParams p) async {

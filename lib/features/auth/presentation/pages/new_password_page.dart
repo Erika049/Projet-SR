@@ -66,7 +66,7 @@ class _NewPasswordViewState extends State<_NewPasswordView> {
       },
       child: AuthLayout(
         title: 'Nouveau mot de passe',
-        subtitle: 'Choisissez un mot de passe d’au moins 6 caractères. Il remplacera l’ancien.',
+        subtitle: 'Choisissez un mot de passe d’au moins 8 caractères. Il remplacera l’ancien.',
         step: (current: 3, total: 3),
         footer: AuthLink(text: 'Vous changez d’avis ?', action: 'Annuler', onTap: () => context.go(Routes.login)),
         children: [
@@ -82,7 +82,7 @@ class _NewPasswordViewState extends State<_NewPasswordView> {
                     prefixIcon: Icons.lock_outline_rounded,
                     obscure: true,
                     autofillHints: const [AutofillHints.newPassword],
-                    validator: Validators.password,
+                    validator: Validators.newPassword,
                   ),
                   gap12,
                   AppTextField(

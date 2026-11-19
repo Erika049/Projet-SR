@@ -24,14 +24,15 @@ class LinkChild implements UseCase<LinkRequest, String> {
   const LinkChild(this._repo);
   final ChildrenRepository _repo;
 
-  /// Format attendu : SC-XXXX-XX
-  static final _format = RegExp(r'^SC-[A-Z0-9]{4}-[A-Z0-9]{2}$');
+  /// Code remis par le secrétariat : 8 lettres ou chiffres. Espaces et tirets sont ignorés
+  /// (« QG9H-R36E » = « QG9HR36E »).
+  static String normalize(String code) => code.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
 
   @override
   Future<Result<LinkRequest>> call(String code) async {
-    final normalized = code.trim().toUpperCase();
-    if (!_format.hasMatch(normalized)) {
-      return const Err(ValidationFailure('Code invalide. Format attendu : SC-XXXX-XX'));
+    final normalized = normalize(code);
+    if (normalized.length != 8) {
+      return const Err(ValidationFailure('Code invalide : il contient 8 lettres ou chiffres (ex. QG9H-R36E).'));
     }
     return _repo.linkChild(normalized);
   }

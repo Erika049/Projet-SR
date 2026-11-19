@@ -11,7 +11,6 @@ class LocalStorage {
   static const keyToken = 'auth.token';
   static const keyUser = 'auth.user';
   static const keyEstablishment = 'auth.establishment';
-  static const keyLocale = 'settings.locale';
   static const keyLowData = 'settings.lowData';
   static const keyNotifications = 'settings.notifications';
 

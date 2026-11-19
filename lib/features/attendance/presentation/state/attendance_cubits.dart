@@ -18,7 +18,7 @@ class ChildAttendanceCubit extends Cubit<DataState<AttendanceSummary>> {
   Future<void> load(String childId, {DateTime? month}) async {
     _childId = childId;
     if (month != null) this.month = month;
-    emit(const DataState(status: ViewStatus.loading));
+    emit(state.loading());
     final result = await _get((childId: childId, month: this.month));
     emit(result.fold(state.error, state.success));
   }
@@ -127,7 +127,7 @@ class RollCallCubit extends Cubit<RollCallState> {
         message: result.fold(
           (f) => f.message,
           (online) => online
-              ? 'Appel enregistré. Les parents des absents sont notifiés.'
+              ? 'Fiche d’appel envoyée au surveillant général, qui préviendra les parents des absents.'
               : 'Hors connexion : appel enregistré sur ce téléphone.',
         ),
       ),

@@ -1,7 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:schoolconnect/core/errors/exceptions.dart';
-import 'package:schoolconnect/features/auth/data/datasources/auth_mock_data_source.dart';
 import 'package:schoolconnect/features/auth/domain/entities/app_user.dart';
+
+import '../../support/auth_fake_data_source.dart';
 
 void main() {
   late AuthMockDataSource source;

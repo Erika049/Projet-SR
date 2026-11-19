@@ -22,11 +22,13 @@ class ClassStatsPage extends StatelessWidget {
           final state = context.watch<ClassStatsCubit>().state;
           return AppPage(
             title: state.data == null ? 'Statistiques' : 'Statistiques · ${state.data!.className}',
+            onRefresh: () => context.read<ClassStatsCubit>().load(classId),
             body: DataStateBuilder(
               state: state,
               onRetry: () => context.read<ClassStatsCubit>().load(classId),
               builder: (context, s) => ListView(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                physics: const AlwaysScrollableScrollPhysics(),
                 children: [
                   HighlightCard(
                     child: Row(

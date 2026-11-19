@@ -87,7 +87,7 @@ class ReportCardsCubit extends Cubit<DataState<List<ReportCard>>> {
   final DownloadReportCard _download;
 
   Future<void> load(String childId) async {
-    emit(const DataState(status: ViewStatus.loading));
+    emit(state.loading());
     final result = await _get(childId);
     emit(result.fold(state.error, state.success));
   }
@@ -224,7 +224,7 @@ class AppreciationsCubit extends Cubit<DataState<List<Appreciation>>> {
   final SaveAppreciations _save;
 
   Future<void> load(String classId) async {
-    emit(const DataState(status: ViewStatus.loading));
+    emit(state.loading());
     final result = await _get(classId);
     emit(result.fold(state.error, state.success));
   }
@@ -243,7 +243,7 @@ class ClassStatsCubit extends Cubit<DataState<ClassStats>> {
   final GetClassStats _get;
 
   Future<void> load(String classId) async {
-    emit(const DataState(status: ViewStatus.loading));
+    emit(state.loading());
     final result = await _get(classId);
     emit(result.fold(state.error, state.success));
   }

@@ -26,6 +26,7 @@ class ChildProfilePage extends StatelessWidget {
     }
     return AppPage(
       title: 'Fiche de l’enfant',
+      onRefresh: context.read<ChildrenCubit>().load,
       children: [
         AppCard(
           child: DividedColumn(

@@ -32,6 +32,7 @@ class _TimetableViewState extends State<_TimetableView> {
     final state = context.watch<TimetableCubit>().state;
     return AppPage(
       title: 'Emploi du temps',
+      onRefresh: context.read<TimetableCubit>().load,
       children: [
         PillSelector(labels: _days, selected: _day, onChanged: (i) => setState(() => _day = i)),
         gap12,

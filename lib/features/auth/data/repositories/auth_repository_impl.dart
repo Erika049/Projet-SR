@@ -20,12 +20,17 @@ class AuthRepositoryImpl implements AuthRepository {
   });
 
   @override
-  Future<Result<void>> registerParent({
+  Future<Result<AppUser?>> registerParent({
     required String fullName,
     required String phone,
     String? email,
     required String password,
-  }) => guard(() => _remote.registerParent(fullName, phone, email, password));
+  }) => guard(() async {
+    final session = await _remote.registerParent(fullName, phone, email, password);
+    if (session == null) return null;
+    await _local.saveSession(session);
+    return session.user;
+  });
 
   @override
   Future<Result<AppUser>> verifyOtp({required String phone, required String code}) => guard(() async {

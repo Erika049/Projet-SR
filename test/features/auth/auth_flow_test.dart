@@ -5,11 +5,14 @@ import 'package:schoolconnect/app/app.dart';
 import 'package:schoolconnect/app/di/injection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../support/auth_fake_data_source.dart';
+
 void main() {
   setUpAll(() async {
     SharedPreferences.setMockInitialValues({});
     await initializeDateFormatting('fr_FR');
-    await configureDependencies();
+    // Parcours d'interface sans serveur : authentification simulée.
+    await configureDependencies(auth: AuthMockDataSource());
   });
 
   testWidgets('bienvenue → connexion → inscription', (tester) async {

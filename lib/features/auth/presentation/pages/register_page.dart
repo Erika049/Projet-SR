@@ -9,6 +9,7 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/utils/view_status.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../state/auth_form_cubits.dart';
+import '../state/session_cubit.dart';
 import '../widgets/auth_layout.dart';
 
 /// « Créer un compte » — étape 1 sur 2.
@@ -44,13 +45,19 @@ class _RegisterViewState extends State<_RegisterView> {
   Future<void> _submit() async {
     if (!_form.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    final ok = await context.read<RegisterCubit>().submit((
+    final (:ok, :user) = await context.read<RegisterCubit>().submit((
       fullName: _name.text,
       phone: _phone.text,
       email: _email.text,
       password: _password.text,
     ));
-    if (ok && mounted) context.push(Routes.otp, extra: _phone.text.trim());
+    if (!ok || !mounted) return;
+    if (user != null) {
+      // Le serveur a ouvert la session directement : pas de code SMS à saisir.
+      await context.read<SessionCubit>().signedIn(user);
+    } else {
+      context.push(Routes.otp, extra: _phone.text.trim());
+    }
   }
 
   @override
@@ -76,10 +83,10 @@ class _RegisterViewState extends State<_RegisterView> {
               children: [
                 AppTextField(
                   controller: _name,
-                  hint: 'Nom complet',
+                  hint: 'Prénom et nom',
                   prefixIcon: Icons.person_outline_rounded,
                   autofillHints: const [AutofillHints.name],
-                  validator: (v) => Validators.required(v, 'Le nom'),
+                  validator: Validators.fullName,
                 ),
                 gap12,
                 AppTextField(
@@ -102,12 +109,12 @@ class _RegisterViewState extends State<_RegisterView> {
                 gap12,
                 AppTextField(
                   controller: _password,
-                  hint: 'Mot de passe (6 caractères min.)',
+                  hint: 'Mot de passe (8 caractères min.)',
                   prefixIcon: Icons.lock_outline_rounded,
                   obscure: true,
                   textInputAction: TextInputAction.done,
                   autofillHints: const [AutofillHints.newPassword],
-                  validator: Validators.password,
+                  validator: Validators.newPassword,
                   onSubmitted: (_) => _submit(),
                 ),
               ],

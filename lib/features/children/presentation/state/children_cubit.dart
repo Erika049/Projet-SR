@@ -67,12 +67,14 @@ class ChildrenCubit extends Cubit<ChildrenState> {
   final UnlinkChild _unlink;
   final RequestCorrection _correction;
 
-  Future<void> load() async {
-    emit(state.copyWith(status: ViewStatus.loading));
+  /// [silent] : actualisation en arrière-plan, sans repasser par l'état « chargement ».
+  Future<void> load({bool silent = false}) async {
+    if (!silent || state.status != ViewStatus.success) emit(state.copyWith(status: ViewStatus.loading));
     final children = await _getChildren(const NoParams());
     final requests = await _getRequests(const NoParams());
+    if (isClosed) return;
     children.fold(
-      (f) => emit(state.copyWith(status: ViewStatus.failure, failure: f)),
+      (f) => silent && state.children.isNotEmpty ? null : emit(state.copyWith(status: ViewStatus.failure, failure: f)),
       (list) => emit(
         state.copyWith(
           status: ViewStatus.success,

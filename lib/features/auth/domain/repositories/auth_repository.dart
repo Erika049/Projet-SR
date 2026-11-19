@@ -6,8 +6,9 @@ abstract interface class AuthRepository {
   /// Connexion par téléphone ou email (CU-PAR-01, CU-ENS-01).
   Future<Result<AppUser>> login({required String identifier, required String password});
 
-  /// Étape 1 de la création d'un compte parent : envoie un code OTP par SMS.
-  Future<Result<void>> registerParent({
+  /// Création d'un compte parent. Retourne l'utilisateur si le serveur ouvre directement
+  /// la session (backend actuel), ou `null` si un code SMS doit d'abord être vérifié.
+  Future<Result<AppUser?>> registerParent({
     required String fullName,
     required String phone,
     String? email,

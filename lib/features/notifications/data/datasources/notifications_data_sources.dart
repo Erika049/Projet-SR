@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 import '../../../../core/errors/exceptions.dart';
-import '../../../../core/network/mock_delay.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/network/api_json.dart';
 import '../../../../core/storage/local_storage.dart';
 import '../../domain/entities/notifications.dart';
 
@@ -11,97 +12,6 @@ abstract interface class NotificationsRemoteDataSource {
   Future<NotificationPreferences> getPreferences(String childId);
   Future<void> savePreferences(NotificationPreferences preferences);
   Future<List<Announcement>> getAnnouncements();
-}
-
-/// Données de démonstration (maquettes « Notifications » et « Annonces »).
-class NotificationsMockDataSource implements NotificationsRemoteDataSource {
-  final Map<String, NotificationPreferences> _prefs = {};
-  bool _read = false;
-
-  @override
-  Future<List<AppNotification>> getNotifications() async {
-    await mockDelay();
-    final today = DateTime.now();
-    DateTime at(int h, int m) => DateTime(today.year, today.month, today.day, h, m);
-    return [
-      AppNotification(
-        id: 'n1',
-        childId: 'eleve-amina',
-        type: NotificationType.note,
-        title: 'Une note a été publiée',
-        message: 'Amina · 16/20 en mathématiques. Séquence 1, coef. 4.',
-        date: at(9, 20),
-        channels: const [NotificationChannel.push],
-        read: _read,
-      ),
-      AppNotification(
-        id: 'n2',
-        childId: 'eleve-amina',
-        type: NotificationType.absence,
-        title: 'Absence signalée',
-        message: 'Amina · Mathématiques, 8 h – 9 h. Vous pouvez justifier l’absence.',
-        date: at(8, 15),
-        channels: const [NotificationChannel.push],
-        read: _read,
-      ),
-      AppNotification(
-        id: 'n3',
-        type: NotificationType.echeance,
-        title: 'Échéance de scolarité',
-        message: '45 000 FCFA à régler avant le 30 novembre 2026.',
-        date: at(7, 30),
-        channels: const [NotificationChannel.push],
-        read: _read,
-      ),
-    ];
-  }
-
-  @override
-  Future<void> markAllRead() async {
-    await mockDelay(150);
-    _read = true;
-  }
-
-  @override
-  Future<NotificationPreferences> getPreferences(String childId) async {
-    await mockDelay(300);
-    return _prefs[childId] ?? NotificationPreferences.defaults(childId);
-  }
-
-  @override
-  Future<void> savePreferences(NotificationPreferences preferences) async {
-    await mockDelay();
-    _prefs[preferences.childId] = preferences;
-  }
-
-  @override
-  Future<List<Announcement>> getAnnouncements() async {
-    await mockDelay();
-    return [
-      Announcement(
-        id: 'a1',
-        title: 'Réunion des parents',
-        summary: 'Samedi 21 novembre, 9 h · Salle polyvalente',
-        kind: AnnouncementKind.convocation,
-        publishedAt: DateTime(2026, 11, 10),
-        content: 'Les parents d’élèves sont convoqués à la réunion trimestrielle. Présence obligatoire.',
-      ),
-      Announcement(
-        id: 'a2',
-        title: 'Remise des bulletins',
-        summary: 'Séquence 1 · mercredi 25 novembre',
-        kind: AnnouncementKind.annonce,
-        publishedAt: DateTime(2026, 11, 9),
-      ),
-      Announcement(
-        id: 'a3',
-        title: 'Rappel de scolarité',
-        summary: '2e versement avant le 30 novembre.',
-        kind: AnnouncementKind.annonce,
-        publishedAt: DateTime(2026, 11, 2),
-      ),
-    ];
-  }
 }
 
 /// Cache des notifications : « Hors connexion, les alertes déjà reçues restent visibles ».
@@ -153,4 +63,85 @@ class NotificationsLocalDataSource {
       ],
     );
   }
+}
+
+/// Backend SchoolConnect : `GET /mes-notifications`, `PATCH /mes-notifications/lues`.
+///
+/// Les annonces de l'établissement sont les notifications de type MESSAGE_ETABLISSEMENT.
+/// Les préférences d'alertes n'existent pas dans l'API : elles restent sur le téléphone.
+class NotificationsApiDataSource implements NotificationsRemoteDataSource {
+  NotificationsApiDataSource(this._api, this._storage);
+
+  final ApiClient _api;
+  final LocalStorage _storage;
+
+  static String _prefsKey(String childId) => 'notifications.preferences.$childId';
+
+  static NotificationType _type(Object? v) => switch (v) {
+    'ABSENCE' || 'RETARD' || 'SORTIE_ANTICIPEE' || 'JUSTIFICATIF_TRAITE' => NotificationType.absence,
+    'PAIEMENT_ENREGISTRE' || 'PAIEMENT_ANNULE' || 'RELANCE_IMPAYE' || 'DECLARATION_PAIEMENT_TRAITEE' =>
+      NotificationType.echeance,
+    _ => NotificationType.annonce,
+  };
+
+  Future<List<Map<String, dynamic>>> _fetch() async {
+    final page = ApiJson.map(await _api.get('/mes-notifications', query: {'page': 0, 'taille': 50}));
+    return ApiJson.list(page['elements']);
+  }
+
+  @override
+  Future<List<AppNotification>> getNotifications() async => [
+    for (final n in await _fetch())
+      AppNotification(
+        id: n['id'] as String,
+        type: _type(n['type']),
+        title: n['titre'] as String? ?? '',
+        message: n['message'] as String? ?? '',
+        date: ApiJson.parseDate(n['creeLe']) ?? DateTime.now(),
+        channels: const [NotificationPreferences.defaultChannel],
+        childId: n['eleveId'] as String?,
+        read: n['lueLe'] != null,
+      ),
+  ];
+
+  @override
+  Future<void> markAllRead() => _api.patch('/mes-notifications/lues');
+
+  @override
+  Future<NotificationPreferences> getPreferences(String childId) async {
+    final json = _storage.getJson(_prefsKey(childId));
+    if (json == null) return NotificationPreferences.defaults(childId);
+    Set<NotificationChannel> channels(Object? list) => {
+      for (final c in (list as List? ?? const [])) NotificationChannel.values.byName(c as String),
+    };
+    return NotificationPreferences(
+      childId: childId,
+      channels: channels(json['channels']),
+      byType: {
+        for (final t in NotificationType.values) t: channels(ApiJson.map(json['byType'])[t.name]),
+      },
+    );
+  }
+
+  @override
+  Future<void> savePreferences(NotificationPreferences p) => _storage.setJson(_prefsKey(p.childId), {
+    'channels': [for (final c in p.channels) c.name],
+    'byType': {
+      for (final e in p.byType.entries) e.key.name: [for (final c in e.value) c.name],
+    },
+  });
+
+  @override
+  Future<List<Announcement>> getAnnouncements() async => [
+    for (final n in await _fetch())
+      if (n['type'] == 'MESSAGE_ETABLISSEMENT')
+        Announcement(
+          id: n['id'] as String,
+          title: n['titre'] as String? ?? '',
+          summary: n['message'] as String? ?? '',
+          kind: AnnouncementKind.annonce,
+          publishedAt: ApiJson.parseDate(n['creeLe']) ?? DateTime.now(),
+          content: n['message'] as String?,
+        ),
+  ];
 }

@@ -1,71 +1,103 @@
-# Comptes de test — SchoolConnect mobile
+# Comptes de test — SchoolConnect
 
-Ces comptes fonctionnent tant que l'application tourne avec les données fictives
-(`USE_MOCK=true`, valeur par défaut). Ils sont définis dans
-`lib/features/auth/data/datasources/auth_mock_data_source.dart` (`DemoAccounts`).
+Les applications mobile et web n'ont plus de données fictives : tout vient de la base PostgreSQL du backend.
+Les comptes et données ci-dessous sont créés par le script `scripts/donnees-test-local.ps1` du dépôt backend
+(sur une base vide, serveur local lancé).
 
-La connexion se fait **uniquement avec le numéro de téléphone et le mot de passe**.
-Le numéro peut être saisi avec ou sans `+237` et avec des espaces
-(`690000001`, `+237 690 000 001` et `690 00 00 01` sont acceptés).
+Application **mobile** (parents, enseignants) : connexion avec le **numéro de téléphone et le mot de passe**. Application **web** (personnel) : connexion avec l'**adresse e-mail et le mot de passe**, sans inscription possible. Les deux applications sont uniquement en français. Le numéro peut être saisi
+avec ou sans `+237` et avec des espaces (`690000001`, `+237 690 000 001` et `690 00 00 01` sont acceptés).
 
-## Parents
+## 1. Serveur local
 
-| Nom              | Téléphone   | Mot de passe |
-|------------------|-------------|--------------|
-| Madeleine Etame  | `690000001` | `parent123`  |
-| Jean Nkoulou     | `690000002` | `parent123`  |
+Lancer le backend (voir `docs/INTEGRATION-MOBILE-WEB.md` du dépôt backend), puis l'application :
 
-## Enseignants
+```bash
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080/api/v1   # émulateur Android
+```
 
-| Nom          | Téléphone   | Mot de passe | Ce qu'on peut tester                                         |
-|--------------|-------------|--------------|--------------------------------------------------------------|
-| Paul Kamga   | `670000001` | `prof123`    | 2 établissements → écran « Choisir un établissement »        |
-| Aïcha Bello  | `670000002` | `prof123`    | 1 seul établissement → arrivée directe sur l'accueil         |
+Application web : `API_URL=http://localhost:8080/api/v1` dans `.env.local`, puis `npm run dev`.
 
-## Inscription d'un nouveau parent
+### Application mobile
 
-1. Sur l'écran de connexion : **Vous n'avez pas de compte ? S'inscrire**.
-2. Remplir le formulaire avec un numéro qui n'est pas dans les tableaux ci-dessus, puis **Envoyer**.
-3. Code de vérification (OTP) : **`123456`**.
+| Profil | Nom | Téléphone | Mot de passe | À tester |
+|---|---|---|---|---|
+| Parent | Madeleine Etame | `690000001` | `parent2026` | 2 enfants (Amina 3e A, Junior 6e B), notes, absences, justificatif, déclaration, reçus, code de liaison de Paul |
+| Parent | Jean Nkoulou | `690000002` | `parent2026` | Boris (3e A), paiements soldés |
+| Parent | Marie Mbarga | `690000003` | `parent2026` | Carine (3e A) |
+| Parent | Pauline Ngo | `690000004` | `parent2026` | Esther (3e A) |
+| Enseignant | Paul Kamga | `670000001` | `prof2026` | maths en 3e A (5 élèves), 4e B, 6e B ; appel, notes, emploi du temps |
+| Enseignante | Aïcha Bello | `670000002` | `prof2026` | français et anglais en 3e A, anglais en 6e B |
 
-Le compte créé permet ensuite de se reconnecter avec ce numéro et ce mot de passe,
-jusqu'à la fermeture de l'application (il n'est pas enregistré durablement).
+### Application web
 
-## Mot de passe oublié
+| Rôle | Nom | Adresse e-mail | Mot de passe |
+|---|---|---|---|
+| Directeur | Samuel Nguele | `direction@lbb.cm` | `Ecole2026` |
+| Secrétaire | Brigitte Ondoa | `secretariat@lbb.cm` | `Ecole2026` |
+| Surveillant général | Joseph Mvondo | `surveillance@lbb.cm` | `Ecole2026` |
+| Économe | Florence Tchamba | `economat@lbb.cm` | `Ecole2026` |
+| Super-admin | Admin Super | `admin@schoolconnect.cm` | `AdminLocal2026` |
 
-1. Sur l'écran de connexion : **Mot de passe oublié ?**, saisir le numéro, puis **Envoyer le code**.
-2. Code reçu par SMS : **`123456`** (validé automatiquement au 6e chiffre).
-3. Choisir le nouveau mot de passe (6 caractères minimum, saisi deux fois), puis **Enregistrer**.
-4. Retour à la connexion : seul le nouveau mot de passe fonctionne désormais.
+### Scénarios de bout en bout
 
-Pour ne pas révéler qui est inscrit, l'étape 1 passe toujours au code, même avec un
-numéro inconnu. C'est le code qui est alors refusé (« Code incorrect ou expiré »).
-Comme pour l'inscription, le changement est perdu à la fermeture de l'application.
+**Appel → surveillant général → parents**
+1. Mobile, **Paul Kamga** : **Appel** d'une classe (ex. 3e A, 5 élèves), marquer un élève **A**, puis
+   **Soumettre la fiche d'appel**. Les parents ne sont **pas encore** prévenus.
+2. Web, **Joseph Mvondo** : **Présences** → « Fiches d'appel à vérifier » → **Vérifier la fiche** →
+   **Notifier les parents des absents**. (Les fiches du 18/11 en 3e A et 6e B sont déjà en attente.)
+3. Mobile, parent de l'élève : la notification « Absence de … » arrive et l'absence apparaît dans **Suivi → Absences**.
+   David Njoya (3e A) n'a pas de parent lié : le web l'indique au surveillant.
 
-## Notifications
+**Justificatif d'absence**
+1. Mobile, **Madeleine Etame** : **Suivi → Absences** → une absence « À justifier » → motif + photo ou PDF → **Envoyer**.
+2. Web, **Joseph Mvondo** : **Justificatifs** → ouvrir la pièce → **Valider** ou **Refuser** (commentaire facultatif).
+3. Mobile : notification de la décision, l'absence passe à « Justifié » ou « Refusé ».
+
+**Déclaration de paiement**
+1. Mobile, **Madeleine Etame** : **Suivi → Paiements → Déclarer un paiement** (mode, montant, date, référence, preuve).
+2. Web, **Florence Tchamba** : **Déclarations** → ouvrir la preuve → **Valider** (paiement enregistré, reçu émis)
+   ou **Rejeter** (motif transmis au parent).
+3. Mobile : le paiement validé apparaît avec son reçu ; **Télécharger** enregistre le reçu PDF.
+
+**Lier un enfant par code**
+1. Mobile, **Madeleine Etame** : **Enfants → Lier un enfant** → code affiché à la fin du script de données
+   (enfant : Paul Etame, 4e B).
+2. Web, **Brigitte Ondoa** : **Demandes** → **Accepter**.
+3. Mobile : Paul apparaît dans la liste des enfants.
+
+**Mot de passe oublié**
+1. Mobile : **Mot de passe oublié ?** → numéro → **Envoyer le code**.
+2. Aucun fournisseur SMS n'est branché : en local, le code est écrit dans les journaux du serveur
+   (`[DEV] Code de vérification SchoolConnect pour +237… : 123456`).
+3. Saisir le code, puis le nouveau mot de passe (8 caractères minimum).
+
+**Inscrire un nouveau parent et le lier à son enfant**
+1. Mobile : **S'inscrire** avec un numéro non utilisé (ex. `690000011`), prénom et nom, mot de passe
+   (8 caractères minimum). Le compte est créé dans la base et la session s'ouvre directement.
+2. **Enfants → Lier un enfant** : saisir un des codes libres affichés à la fin du script de données
+   (un par élève sans parent : David Njoya, Gaëlle Abena, Hervé Nana, Kevin Ateba, Laure Bella).
+   Chaque code ne sert qu'une fois et reste valable 30 jours.
+3. Web, **Brigitte Ondoa** : **Demandes de liaison** → **Accepter**.
+4. Mobile : l'enfant apparaît, avec ses notes, absences, emploi du temps et paiements.
+
+Pour obtenir un nouveau code : web, secrétariat → **Élèves** → dossier de l'élève → **Ajouter un parent ou tuteur**
+(numéro sans compte) ; le code s'affiche et la **Fiche de liaison** imprimable le reprend.
+Si le numéro a déjà un compte, le parent est lié directement, sans code.
+
+## Tests automatiques
+
+Le test d'interface `test/features/auth/auth_flow_test.dart` utilise une fausse authentification
+(`test/support/auth_fake_data_source.dart`) pour tourner sans serveur ; elle n'est pas incluse dans l'application.
+
+## Notifications du téléphone
 
 - À la **première connexion** (ou après une inscription), Android demande directement
   l'autorisation d'envoyer des notifications. Cette demande n'apparaît qu'une fois par téléphone.
-- Pour la revoir : désinstaller l'application, ou effacer ses données dans les paramètres d'Android.
-- Dans **Profil**, l'interrupteur **Notifications** suit l'autorisation du téléphone : si on bloque
-  les notifications dans les paramètres d'Android, il passe à « Non autorisées par le téléphone ».
-
-## Déclarer un paiement (parent)
-
-1. **Suivi → Paiements → Déclarer un paiement**.
-2. Choisir le mode (Mobile Money, Espèces, Virement), saisir le **montant**, la **date** et la **référence**.
-3. **Joindre la preuve** : Android demande l'accès aux fichiers, puis choisir une image ou un PDF (5 Mo max).
-4. **Envoyer la déclaration**. Un montant supérieur au solde, une date future ou une preuve
-   manquante sont refusés avec un message.
-
-## Faire l'appel (enseignant)
-
-**Appel** : chaque élève est marqué **P** (présent) ou **A** (absent) ; « Tous présents » remet
-toute la classe à présent. Il n'y a pas de retard pour les élèves.
+- Dans **Profil**, l'interrupteur **Notifications** suit l'autorisation du téléphone.
+- Les notifications sont affichées **dans l'application** (onglet Notifications) ; les notifications push
+  (Firebase) ne sont pas encore branchées.
 
 ## À savoir
 
-- Les données affichées après connexion (enfants, notes, paiements, classes…) sont les
-  mêmes données fictives pour tous les parents et pour tous les enseignants.
 - La session est mémorisée : pour changer de compte, se déconnecter depuis l'onglet **Profil**.
-- Pour brancher le vrai serveur : `flutter run --dart-define=USE_MOCK=false --dart-define=API_BASE_URL=https://…`
+- Appel des élèves : **P** (présent) ou **A** (absent) ; « Tous présents » remet toute la classe à présent.

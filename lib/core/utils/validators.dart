@@ -21,8 +21,24 @@ abstract final class Validators {
     return v.contains('@') ? email(v) : phone(v);
   }
 
+  /// Connexion : le mot de passe doit simplement être saisi.
   static String? password(String? v) {
     if (v == null || v.isEmpty) return 'Le mot de passe est obligatoire';
-    return v.length < 6 ? 'Au moins 6 caractères' : null;
+    return null;
+  }
+
+  /// Nouveau mot de passe (inscription, réinitialisation) : 8 caractères minimum, règle du serveur.
+  static const newPasswordMinLength = 8;
+
+  static String? newPassword(String? v) {
+    if (v == null || v.isEmpty) return 'Le mot de passe est obligatoire';
+    return v.length < newPasswordMinLength ? 'Au moins $newPasswordMinLength caractères' : null;
+  }
+
+  /// « Prénom Nom » : le serveur exige un prénom et un nom.
+  static String? fullName(String? v) {
+    final parts = (v ?? '').trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty);
+    if (parts.isEmpty) return 'Le nom est obligatoire';
+    return parts.length < 2 ? 'Saisissez le prénom et le nom' : null;
   }
 }

@@ -34,6 +34,10 @@ class _ReportCardsView extends StatelessWidget {
     final state = context.watch<ReportCardsCubit>().state;
     return AppPage(
       title: 'Bulletins',
+      onRefresh: () async {
+        final child = context.read<ChildrenCubit>().state.selected;
+        if (child != null) await context.read<ReportCardsCubit>().load(child.id);
+      },
       children: [
         const ChildSelector(),
         gap12,

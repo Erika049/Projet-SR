@@ -37,17 +37,19 @@ class RegisterCubit extends Cubit<SubmitState> {
   RegisterCubit(this._register) : super(const SubmitState());
   final RegisterParent _register;
 
-  Future<bool> submit(RegisterParams params) async {
+  /// `ok` : compte créé. `user` : session déjà ouverte par le serveur ;
+  /// `null` : il faut encore vérifier le code SMS.
+  Future<({bool ok, AppUser? user})> submit(RegisterParams params) async {
     emit(const SubmitState(status: ViewStatus.loading));
     final result = await _register(params);
     return result.fold(
       (f) {
         emit(SubmitState(status: ViewStatus.failure, error: f.message));
-        return false;
+        return (ok: false, user: null);
       },
-      (_) {
+      (user) {
         emit(const SubmitState(status: ViewStatus.success));
-        return true;
+        return (ok: true, user: user);
       },
     );
   }

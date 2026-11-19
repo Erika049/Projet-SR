@@ -12,7 +12,7 @@ class FinancialSituationCubit extends Cubit<DataState<FinancialSituation>> {
 
   Future<void> load(String childId) async {
     _childId = childId;
-    emit(const DataState(status: ViewStatus.loading));
+    emit(state.loading());
     final result = await _get(childId);
     emit(result.fold(state.error, state.success));
   }
@@ -29,7 +29,7 @@ class PaymentHistoryCubit extends Cubit<DataState<List<PaymentRecord>>> {
   final DownloadReceipt _download;
 
   Future<void> load(String childId) async {
-    emit(const DataState(status: ViewStatus.loading));
+    emit(state.loading());
     final result = await _get(childId);
     emit(result.fold(state.error, state.success));
   }

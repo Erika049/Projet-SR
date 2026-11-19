@@ -47,11 +47,13 @@ class _MyAttendanceView extends StatelessWidget {
     final cubit = context.read<MyAttendanceCubit>();
     return AppPage(
       title: 'Ma présence',
+      onRefresh: cubit.load,
       body: DataStateBuilder(
         state: state,
         onRetry: cubit.load,
         builder: (context, me) => ListView(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          physics: const AlwaysScrollableScrollPhysics(),
           children: [
             AppCard(
               child: Column(

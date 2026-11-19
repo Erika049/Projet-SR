@@ -59,10 +59,13 @@ class _TeacherHomeView extends StatelessWidget {
               ),
             ),
             gap12,
-            AppButton(
-              label: 'Saisir des notes',
-              onPressed: () => context.go(Routes.teacherGrades(o.current?.classId ?? o.classes.first.id)),
-            ),
+            if (o.classes.isEmpty)
+              const HelpText('Aucune classe ne vous est encore affectée dans cet établissement.')
+            else
+              AppButton(
+                label: 'Saisir des notes',
+                onPressed: () => context.go(Routes.teacherGrades(o.current?.classId ?? o.classes.first.id)),
+              ),
             InkWell(
               onTap: () => context.push(Routes.teacherSync),
               child: HelpText(

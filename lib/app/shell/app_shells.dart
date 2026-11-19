@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/network/data_refresh.dart';
 import '../../features/children/presentation/state/children_cubit.dart';
 import '../../features/sync/presentation/state/sync_cubit.dart';
 import '../di/injection.dart';
@@ -22,13 +25,42 @@ class _ShellScaffold extends StatefulWidget {
   State<_ShellScaffold> createState() => _ShellScaffoldState();
 }
 
-class _ShellScaffoldState extends State<_ShellScaffold> {
+class _ShellScaffoldState extends State<_ShellScaffold> with WidgetsBindingObserver {
+  /// Actualisation régulière tant que l'application est ouverte (nouvelles notifications,
+  /// absences signalées par le surveillant, paiements validés…).
+  static const _period = Duration(seconds: 60);
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _startTimer();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) promptNotificationsFirstTime(context);
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(_period, (_) => DataRefresh.instance.request());
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      DataRefresh.instance.request();
+      _startTimer();
+    } else if (state == AppLifecycleState.paused) {
+      _timer?.cancel();
+    }
   }
 
   @override
@@ -43,7 +75,10 @@ class _ShellScaffoldState extends State<_ShellScaffold> {
         child: NavigationBar(
           selectedIndex: shell.currentIndex,
           // Un second appui sur l'onglet courant revient à sa racine.
-          onDestinationSelected: (i) => shell.goBranch(i, initialLocation: i == shell.currentIndex),
+          onDestinationSelected: (i) {
+            shell.goBranch(i, initialLocation: i == shell.currentIndex);
+            DataRefresh.instance.request();
+          },
           destinations: [
             for (final t in widget.tabs)
               NavigationDestination(icon: Icon(t.icon), selectedIcon: Icon(t.selected), label: t.label),
@@ -63,7 +98,7 @@ class ParentShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl<ChildrenCubit>()..load(),
+      create: (_) => _childrenWithRefresh(),
       child: _ShellScaffold(
         shell: shell,
         tabs: const [
@@ -75,6 +110,18 @@ class ParentShell extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Liste des enfants rechargée à chaque actualisation (liaison acceptée par le secrétariat…).
+ChildrenCubit _childrenWithRefresh() {
+  final cubit = sl<ChildrenCubit>()..load();
+  void reload() {
+    if (!cubit.isClosed) cubit.load(silent: true);
+  }
+
+  DataRefresh.instance.addListener(reload);
+  cubit.stream.listen(null, onDone: () => DataRefresh.instance.removeListener(reload));
+  return cubit;
 }
 
 /// Espace Enseignant : Accueil · Notes · Appel · Profil.

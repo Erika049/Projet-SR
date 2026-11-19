@@ -1,10 +1,12 @@
-import '../../../../core/errors/exceptions.dart';
-import '../../../../core/network/mock_delay.dart';
-import '../../domain/entities/app_user.dart';
-import '../models/user_model.dart';
-import 'auth_remote_data_source.dart';
+// Fausse source d'authentification, réservée aux tests d'interface (aucun serveur nécessaire).
+// L'application elle-même n'utilise que le backend SchoolConnect.
+import 'package:schoolconnect/core/errors/exceptions.dart';
+import 'package:schoolconnect/core/network/mock_delay.dart';
+import 'package:schoolconnect/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:schoolconnect/features/auth/data/models/user_model.dart';
+import 'package:schoolconnect/features/auth/domain/entities/app_user.dart';
 
-/// Compte de démonstration utilisable tant que `USE_MOCK` vaut `true`.
+/// Compte fictif des tests.
 class DemoAccount {
   const DemoAccount({required this.phone, required this.password, required this.user, this.establishments = const []});
 
@@ -149,10 +151,11 @@ class AuthMockDataSource implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> registerParent(String fullName, String phone, String? email, String password) async {
+  Future<AuthSession?> registerParent(String fullName, String phone, String? email, String password) async {
     await mockDelay();
     if (_find(phone) != null) throw const AuthException('Un compte existe déjà avec ce numéro.');
     _pending = (fullName: fullName.trim(), phone: phone, email: email, password: password);
+    return null; // Le code SMS (123456) est vérifié à l'étape suivante.
   }
 
   @override

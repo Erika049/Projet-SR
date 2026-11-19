@@ -26,7 +26,7 @@ class PreferencesCubit extends Cubit<DataState<NotificationPreferences>> {
   final SaveNotificationPreferences _save;
 
   Future<void> load(String childId) async {
-    emit(const DataState(status: ViewStatus.loading));
+    emit(state.loading());
     final result = await _get(childId);
     emit(result.fold(state.error, state.success));
   }

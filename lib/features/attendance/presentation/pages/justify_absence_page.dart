@@ -56,7 +56,10 @@ class _JustifyViewState extends State<_JustifyView> {
     final r = widget.record;
     final child = context.read<ChildrenCubit>().state.selected;
     final state = context.watch<JustifyCubit>().state;
-    final when = r.end == null
+    final allDay = r.end == null && r.start.hour == 0 && r.start.minute == 0;
+    final when = allDay
+        ? Formatters.shortDate(r.start)
+        : r.end == null
         ? '${Formatters.shortDate(r.start)}, ${Formatters.hour(r.start).toLowerCase()}'
         : '${Formatters.shortDate(r.start)}, ${Formatters.slot(r.start, r.end!).toLowerCase()}';
 
@@ -99,7 +102,7 @@ class _JustifyViewState extends State<_JustifyView> {
             onPressed: () =>
                 context.read<JustifyCubit>().submit((record: r, reason: _reason.text, attachmentPath: _file?.path)),
           ),
-          const HelpText('Le justificatif sera validé par l\'etablissemant.'),
+          const HelpText('Le surveillant général vérifie le justificatif. Vous serez notifié de sa décision.'),
         ],
       ),
     );

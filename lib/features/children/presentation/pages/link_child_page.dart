@@ -42,11 +42,11 @@ class _LinkChildPageState extends State<LinkChildPage> {
       title: 'Lier un enfant',
       children: [
         Text(
-          'Saisissez le code remis par l’école ou ouvrez le lien d’invitation reçu par SMS.',
+          'Saisissez le code de liaison remis par le secrétariat de l’école (8 lettres ou chiffres).',
           style: context.text.bodySmall?.copyWith(fontSize: 15),
         ),
         gap12,
-        AppTextField(controller: _code, hint: 'SC-XXXX-XX', textInputAction: TextInputAction.done),
+        AppTextField(controller: _code, hint: 'XXXX-XXXX', textInputAction: TextInputAction.done),
         gap12,
         AppButton(label: 'Lier cet enfant', loading: _sending, onPressed: _link),
         if (state.requests.isNotEmpty) ...[

@@ -1,9 +1,9 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../core/constants/app_constants.dart';
 import '../../core/network/api_client.dart';
 import '../../core/network/network_info.dart';
+import '../../core/network/teacher_api_context.dart';
 import '../../core/permissions/app_permissions.dart';
 import '../../core/storage/local_storage.dart';
 import '../../core/storage/sync_queue.dart';
@@ -13,7 +13,6 @@ import '../../features/attendance/domain/repositories/attendance_repository.dart
 import '../../features/attendance/domain/usecases/attendance_usecases.dart';
 import '../../features/attendance/presentation/state/attendance_cubits.dart';
 import '../../features/auth/data/datasources/auth_local_data_source.dart';
-import '../../features/auth/data/datasources/auth_mock_data_source.dart';
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
@@ -60,14 +59,15 @@ import '../settings/settings_cubit.dart';
 final sl = GetIt.instance;
 
 /// Enregistre toutes les dépendances. Ordre : core → data → domain → presentation.
-/// Les datasources « mock » sont utilisées tant que `USE_MOCK` vaut `true`
-/// (voir [AppConstants.useMock]).
-Future<void> configureDependencies() async {
+/// Toutes les données viennent du backend SchoolConnect ([AppConstants.apiBaseUrl]).
+/// [auth] : source d'authentification de remplacement, réservée aux tests d'interface.
+Future<void> configureDependencies({AuthRemoteDataSource? auth}) async {
   // ───────── Core ─────────
   final prefs = await SharedPreferences.getInstance();
   sl
     ..registerSingleton(LocalStorage(prefs))
     ..registerLazySingleton(() => ApiClient(sl()))
+    ..registerLazySingleton(() => TeacherApiContext(sl(), sl()))
     ..registerLazySingleton<NetworkInfo>(SimulatedNetworkInfo.new)
     ..registerLazySingleton(() => SyncQueue(sl()))
     ..registerLazySingleton<AppPermissions>(() => const DeviceAppPermissions())
@@ -75,19 +75,16 @@ Future<void> configureDependencies() async {
 
   // ───────── Data : datasources ─────────
   sl
-    ..registerLazySingleton<AuthRemoteDataSource>(
-      () => AppConstants.useMock ? AuthMockDataSource() : AuthApiDataSource(sl()),
-    )
+    ..registerLazySingleton<AuthRemoteDataSource>(() => auth ?? AuthApiDataSource(sl()))
     ..registerLazySingleton(() => AuthLocalDataSource(sl()))
-    // TODO(backend) : remplacer chaque *MockDataSource par son implémentation HTTP.
-    ..registerLazySingleton<ChildrenRemoteDataSource>(ChildrenMockDataSource.new)
-    ..registerLazySingleton<GradesRemoteDataSource>(GradesMockDataSource.new)
-    ..registerLazySingleton<AttendanceRemoteDataSource>(AttendanceMockDataSource.new)
-    ..registerLazySingleton<PaymentsRemoteDataSource>(PaymentsMockDataSource.new)
-    ..registerLazySingleton<NotificationsRemoteDataSource>(NotificationsMockDataSource.new)
+    ..registerLazySingleton<ChildrenRemoteDataSource>(() => ChildrenApiDataSource(sl()))
+    ..registerLazySingleton<GradesRemoteDataSource>(() => GradesApiDataSource(sl(), sl()))
+    ..registerLazySingleton<AttendanceRemoteDataSource>(() => AttendanceApiDataSource(sl(), sl()))
+    ..registerLazySingleton<PaymentsRemoteDataSource>(() => PaymentsApiDataSource(sl()))
+    ..registerLazySingleton<NotificationsRemoteDataSource>(() => NotificationsApiDataSource(sl(), sl()))
     ..registerLazySingleton(() => NotificationsLocalDataSource(sl()))
-    ..registerLazySingleton<TimetableRemoteDataSource>(TimetableMockDataSource.new)
-    ..registerLazySingleton<HomeRemoteDataSource>(HomeMockDataSource.new);
+    ..registerLazySingleton<TimetableRemoteDataSource>(() => TimetableApiDataSource(sl(), sl()))
+    ..registerLazySingleton<HomeRemoteDataSource>(() => HomeApiDataSource(sl()));
 
   // ───────── Data : repositories ─────────
   sl

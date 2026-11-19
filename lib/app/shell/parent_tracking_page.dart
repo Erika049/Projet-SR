@@ -71,10 +71,7 @@ class _ParentTrackingPageState extends State<ParentTrackingPage> {
         title: _titles[_tab],
         onRefresh: child == null
             ? null
-            : () async {
-                _loadedFor = null;
-                _loadFor(child.id);
-              },
+            : () => Future.wait([_grades.load(child.id), _attendance.reload(), _payments.reload()]),
         children: [
           PillSelector(
             labels: const ['Notes', 'Présences', 'Paiements'],

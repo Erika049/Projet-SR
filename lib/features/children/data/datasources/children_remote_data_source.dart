@@ -1,5 +1,5 @@
-import '../../../../core/errors/exceptions.dart';
-import '../../../../core/network/mock_delay.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/network/api_json.dart';
 import '../../domain/entities/child.dart';
 import '../models/child_model.dart';
 
@@ -11,60 +11,59 @@ abstract interface class ChildrenRemoteDataSource {
   Future<void> requestCorrection(String childId, String message);
 }
 
-/// Données de démonstration conformes aux maquettes (famille Etame).
-/// Code de liaison accepté : SC-4F7K-92.
-class ChildrenMockDataSource implements ChildrenRemoteDataSource {
-  final _children = <ChildModel>[
-    const ChildModel(
-      id: 'eleve-amina',
-      prenom: 'Amina',
-      nom: 'Etame',
-      classe: '3e A',
-      etablissement: 'Lycée bilingue de Bafoussam',
-      anneeScolaire: '2026–2027',
-      matricule: 'LBB-26-0412',
-      rights: ChildRights(canPay: true, canJustify: true),
-    ),
-    const ChildModel(
-      id: 'eleve-junior',
-      prenom: 'Junior',
-      nom: 'Etame',
-      classe: '6e B',
-      etablissement: 'Lycée bilingue de Bafoussam',
-      anneeScolaire: '2026–2027',
-      rights: ChildRights(canPay: true, canJustify: true),
-    ),
-  ];
+/// Backend SchoolConnect :
+/// - `GET /mes-enfants` : enfants liés (lien validé) avec classe, établissement, année et droits ;
+/// - `GET|POST /mes-enfants/liaisons` : demandes de liaison par code, validées par le secrétariat ;
+/// - `DELETE /mes-enfants/{eleveId}` : retrait d'un enfant.
+class ChildrenApiDataSource implements ChildrenRemoteDataSource {
+  const ChildrenApiDataSource(this._api);
+  final ApiClient _api;
 
-  final _requests = <LinkRequestModel>[];
+  static String? _name(Object? v, [String key = 'nom']) => v is Map ? v[key] as String? : v as String?;
+
+  static LinkRequestModel _request(Map<String, dynamic> j) => LinkRequestModel(
+    id: j['id'] as String? ?? '',
+    childName: j['eleveNom'] as String? ?? 'Élève',
+    classe: [j['classe'], j['etablissement']].whereType<String>().join(' · '),
+  );
 
   @override
   Future<List<ChildModel>> getChildren() async {
-    await mockDelay();
-    return List.of(_children);
+    final json = await _api.get('/mes-enfants');
+    return [
+      for (final j in ApiJson.list(json))
+        () {
+          final eleve = j['eleve'] is Map ? ApiJson.map(j['eleve']) : j;
+          return ChildModel(
+            id: (j['eleveId'] ?? eleve['id']) as String,
+            prenom: eleve['prenom'] as String? ?? '',
+            nom: eleve['nom'] as String? ?? '',
+            classe: _name(j['classe']) ?? j['classeNom'] as String? ?? '',
+            etablissement: _name(j['etablissement']) ?? j['etablissementNom'] as String? ?? '',
+            anneeScolaire: _name(j['anneeScolaire'], 'libelle') ?? '',
+            matricule: j['matricule'] as String?,
+            rights: ChildRights(
+              canView: j['peutConsulter'] as bool? ?? true,
+              canPay: j['peutPayer'] as bool? ?? false,
+              canJustify: j['peutJustifier'] as bool? ?? false,
+            ),
+          );
+        }(),
+    ];
   }
 
   @override
-  Future<List<LinkRequestModel>> getLinkRequests() async {
-    await mockDelay(200);
-    return List.of(_requests);
-  }
+  Future<List<LinkRequestModel>> getLinkRequests() async =>
+      ApiJson.list(await _api.get('/mes-enfants/liaisons')).map(_request).toList();
 
   @override
-  Future<LinkRequestModel> linkChild(String code) async {
-    await mockDelay();
-    if (code != 'SC-4F7K-92') throw const ServerException('Code inconnu ou expiré. Contactez le secrétariat.');
-    final request = LinkRequestModel(id: 'req-${_requests.length + 1}', childName: 'Paul Etame', classe: '4e C');
-    _requests.add(request);
-    return request;
-  }
+  Future<LinkRequestModel> linkChild(String code) async =>
+      _request(ApiJson.map(await _api.post('/mes-enfants/liaisons', data: {'code': code.trim()})));
 
   @override
-  Future<void> unlinkChild(String childId) async {
-    await mockDelay();
-    _children.removeWhere((c) => c.id == childId);
-  }
+  Future<void> unlinkChild(String childId) => _api.delete('/mes-enfants/$childId');
 
   @override
-  Future<void> requestCorrection(String childId, String message) => mockDelay();
+  Future<void> requestCorrection(String childId, String message) =>
+      notAvailableOnServer('La demande de correction');
 }

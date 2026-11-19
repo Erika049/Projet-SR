@@ -32,6 +32,7 @@ class MyChildrenPage extends StatelessWidget {
     final children = context.watch<ChildrenCubit>().state.children;
     return AppPage(
       title: 'Mes enfants et droits',
+      onRefresh: context.read<ChildrenCubit>().load,
       children: [
         for (final c in children) ...[
           AppCard(

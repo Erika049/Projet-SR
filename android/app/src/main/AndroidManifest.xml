@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Accès au backend SchoolConnect (nécessaire aussi en version release). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Notifications push (Android 13+ : demandées à la première connexion / inscription). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- Preuves de paiement et justificatifs (images / PDF). -->
