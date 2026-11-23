@@ -4,6 +4,14 @@
 <dict>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>SchoolConnect accède à vos photos pour joindre une preuve de paiement ou un justificatif d’absence.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>SchoolConnect se connecte au serveur de l’établissement sur le réseau local.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Tests avec le serveur local en HTTP (adresse du PC sur le réseau). Le serveur en ligne reste en HTTPS. -->
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

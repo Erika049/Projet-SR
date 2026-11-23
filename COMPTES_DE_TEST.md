@@ -38,6 +38,10 @@ Application web : `API_URL=http://localhost:8080/api/v1` dans `.env.local`, puis
 | Économe | Florence Tchamba | `economat@lbb.cm` | `Ecole2026` |
 | Super-admin | Admin Super | `admin@schoolconnect.cm` | `AdminLocal2026` |
 
+### Autres établissements
+
+La base contient 3 établissements : LBB (ci-dessus), le Collège Saint-Joseph de Bafoussam (CSJB) et le Lycée technique de Garoua (LTG). **Paul Kamga** enseigne à LBB et au CSJB, tous deux à Bafoussam : il choisit l'établissement à la connexion. **Jean Nkoulou** a un enfant dans chacun des deux premiers. Comptes des établissements générés : `docs/DONNEES-TEST-ETABLISSEMENTS.md` du dépôt backend (ex. `direction@csjb.cm` / `Ecole2026`, enseignant `670010001` / `prof2026`, parent `691000001` / `parent2026`).
+
 ### Scénarios de bout en bout
 
 **Appel → surveillant général → parents**
@@ -64,6 +68,15 @@ Application web : `API_URL=http://localhost:8080/api/v1` dans `.env.local`, puis
    (enfant : Paul Etame, 4e B).
 2. Web, **Brigitte Ondoa** : **Demandes** → **Accepter**.
 3. Mobile : Paul apparaît dans la liste des enfants.
+
+**Demande de correction des informations d'un enfant**
+1. Mobile, **Madeleine Etame** : **Profil → Mes enfants → Demander une correction** → choisir l'enfant, décrire l'erreur → **Envoyer**.
+2. Web, **Brigitte Ondoa** : **Demandes de correction** → **Traiter** → corriger la fiche pré-remplie → **Enregistrer et accepter**
+   (ou **Refuser** avec la raison).
+3. Mobile : notification « Demande de correction acceptée » (ou refusée, avec la réponse) ; la fiche de l'enfant est à jour.
+
+**Modifier un membre du personnel**
+Web, **Samuel Nguele** : **Personnel** → un membre → **Modifier les informations** (nom, e-mail, téléphone, rôles).
 
 **Mot de passe oublié**
 1. Mobile : **Mot de passe oublié ?** → numéro → **Envoyer le code**.

@@ -26,8 +26,8 @@ final class Err<T> extends Result<T> {
 Future<Result<T>> guard<T>(Future<T> Function() call) async {
   try {
     return Ok(await call());
-  } on NetworkException {
-    return const Err(NetworkFailure());
+  } on NetworkException catch (e) {
+    return Err(e.message == null ? const NetworkFailure() : NetworkFailure(e.message!));
   } on UnauthorizedException {
     return const Err(SessionExpiredFailure());
   } on AuthException catch (e) {

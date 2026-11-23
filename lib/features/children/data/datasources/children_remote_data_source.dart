@@ -64,6 +64,7 @@ class ChildrenApiDataSource implements ChildrenRemoteDataSource {
   Future<void> unlinkChild(String childId) => _api.delete('/mes-enfants/$childId');
 
   @override
+  /// Envoyée au secrétariat, qui corrige la fiche (ou refuse) sur l'application web ; le parent est notifié.
   Future<void> requestCorrection(String childId, String message) =>
-      notAvailableOnServer('La demande de correction');
+      _api.post('/mes-enfants/$childId/demandes-correction', data: {'message': message.trim()});
 }

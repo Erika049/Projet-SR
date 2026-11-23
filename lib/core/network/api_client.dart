@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 
 import '../constants/app_constants.dart';
 import '../errors/exceptions.dart';
@@ -86,9 +87,15 @@ class ApiClient {
       switch (e.type) {
         case DioExceptionType.connectionError:
         case DioExceptionType.connectionTimeout:
+          // En mode debug, l'adresse du serveur aide à repérer une mauvaise configuration
+          // (API_BASE_URL, PC injoignable sur le Wi-Fi…).
+          throw NetworkException(
+            'Impossible de joindre le serveur SchoolConnect. Vérifiez votre connexion Internet.'
+            '${kDebugMode ? '\n(Serveur : ${AppConstants.apiBaseUrl})' : ''}',
+          );
         case DioExceptionType.receiveTimeout:
         case DioExceptionType.sendTimeout:
-          throw const NetworkException();
+          throw const NetworkException('Le serveur met trop de temps à répondre. Réessayez dans un instant.');
         default:
           final status = e.response?.statusCode;
           final message = _message(e.response?.data);

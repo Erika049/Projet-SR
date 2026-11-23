@@ -6,7 +6,10 @@ class ServerException implements Exception {
 }
 
 class NetworkException implements Exception {
-  const NetworkException();
+  const NetworkException([this.message]);
+
+  /// Message à afficher (serveur injoignable, réponse trop lente…) ; message générique si null.
+  final String? message;
 }
 
 class AuthException implements Exception {

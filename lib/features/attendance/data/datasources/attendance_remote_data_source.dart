@@ -38,6 +38,13 @@ class AttendanceApiDataSource implements AttendanceRemoteDataSource {
   /// Identifiant d'une absence : « eleveId|aaaa-mm-jj » (le serveur indexe les absences par jour).
   static String recordId(String childId, String day) => '$childId|$day';
 
+  /// « 08:00:00 » → date du jour à cette heure ; null si l'heure est absente.
+  static DateTime? _heure(DateTime day, Object? v) {
+    final m = RegExp(r'^(\d{1,2}):(\d{2})').firstMatch('${v ?? ''}');
+    if (m == null) return null;
+    return DateTime(day.year, day.month, day.day, int.parse(m.group(1)!), int.parse(m.group(2)!));
+  }
+
   static JustificationStatus _status(Object? v) => switch (v) {
     'EN_ATTENTE' => JustificationStatus.enAttente,
     'ACCEPTE' => JustificationStatus.justifie,
@@ -58,8 +65,17 @@ class AttendanceApiDataSource implements AttendanceRemoteDataSource {
       if (p['statut'] != 'ABSENT') continue;
       final day = ApiJson.parseDate(p['date']);
       if (day == null || !seen.add('${p['date']}')) continue;
+      // Cours manqué et son créneau d'après l'emploi du temps (ex. Mathématiques, 08h00 – 10h00).
+      final debut = _heure(day, p['heureDebut']);
+      final fin = _heure(day, p['heureFin']);
       records.add(
-        AttendanceRecord(id: recordId(childId, '${p['date']}'), start: day, status: _status(p['justificatif'])),
+        AttendanceRecord(
+          id: recordId(childId, '${p['date']}'),
+          start: debut ?? day,
+          end: debut == null ? null : fin,
+          subject: p['matiereNom'] as String?,
+          status: _status(p['justificatif']),
+        ),
       );
     }
     records.sort((a, b) => b.start.compareTo(a.start));
